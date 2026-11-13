@@ -1,0 +1,1710 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#3a1470" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#2a1052" media="(prefers-color-scheme: dark)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="VIP Inventory" />
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/png;base64,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" />
+    <link rel="apple-touch-icon" href="data:image/png;base64,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" />
+    <title>VIP Cinemas Inventory Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #f4f1fa;
+        --surface: #ffffff;
+        --surface-2: #e9e2f5;
+        --ink: #211736;
+        --ink-soft: #5e5573;
+        --line: #d8cff0;
+        --accent: #4b1d8f;
+        --accent-deep: #3a1470;
+        --accent-ink: #ffffff;
+        --gold: #8a6d00;
+        --gold-bright: #d4af37;
+        --gold-bg: #fdf0bc;
+        --need: #4b1d8f;
+        --need-bg: #ede9fe;
+        --ok: #2e6b34;
+        --ok-bg: #e6f2e4;
+        --warn-bg: #fdf0bc;
+        --warn-ink: #6d4c05;
+        --unset-bg: #e9e2f5;
+        --unset-ink: #5e5573;
+        --header-bg: #3a1470;
+        --header-ink: #ffffff;
+        --header-soft: #e9def8;
+        --shadow: 0 1px 3px rgba(58, 20, 112, .16);
+        color-scheme: light;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #140a26;
+          --surface: #22123d;
+          --surface-2: #2e1a52;
+          --ink: #f5f0ff;
+          --ink-soft: #c4b5e0;
+          --line: #4a3570;
+          --accent: #7c3aed;
+          --accent-deep: #5b21b6;
+          --accent-ink: #ffffff;
+          --gold: #e9c767;
+          --gold-bright: #d4af37;
+          --gold-bg: #33270e;
+          --need: #c4b5fd;
+          --need-bg: #3b1d6e;
+          --ok: #8fd18f;
+          --ok-bg: #1e3320;
+          --warn-bg: #33270e;
+          --warn-ink: #f0cd72;
+          --unset-bg: #2e1a52;
+          --unset-ink: #c4b5e0;
+          --header-bg: #2a1052;
+          --header-ink: #ffffff;
+          --header-soft: #d8c8f5;
+          --shadow: 0 1px 3px rgba(0, 0, 0, .5);
+          color-scheme: dark;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; scroll-padding-bottom: 110px; scroll-padding-top: 190px; }
+      body {
+        margin: 0;
+        font-family: "Barlow", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        font-size: 16px;
+        line-height: 1.35;
+      }
+      button, select, input { font: inherit; }
+      button, [role="button"], select, summary, input:not([type="checkbox"]) { min-height: 2.25rem; }
+
+      .wrap { max-width: 880px; margin: 0 auto; padding: 0 14px 110px; }
+
+      header.top {
+        background: var(--header-bg);
+        color: var(--header-ink);
+        border-radius: 16px;
+        border-bottom: 4px solid var(--gold-bright);
+        padding: 12px 16px 10px;
+        margin-top: 10px;
+        box-shadow: var(--shadow);
+      }
+      .brand-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+      .vip-badge {
+        flex: none; width: 44px; height: 44px; border-radius: 50%;
+        border: 2px solid var(--gold-bright);
+        background: var(--gold-bright);
+        color: var(--header-bg);
+        display: flex; align-items: center; justify-content: center;
+        font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+        font-size: 20px; letter-spacing: .02em; line-height: 1;
+      }
+      .kicker {
+        font-family: "Barlow Condensed", sans-serif;
+        letter-spacing: .14em;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--gold-bright);
+      }
+      header.top .kicker-sub { color: var(--header-soft); font-size: 13px; margin-top: 2px; }
+      h1 {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 40px;
+        line-height: 1;
+        margin: 2px 0 6px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .01em;
+        color: var(--header-ink);
+      }
+      header.top .sub { color: var(--header-soft); }
+      header.top .sub b { color: #ffffff; }
+      .sub { color: var(--ink-soft); font-size: 15px; margin: 0 0 2px; }
+      .sub a { color: var(--accent); font-weight: 600; }
+
+      .sticky {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: var(--bg);
+        padding: 8px 0 8px;
+        border-bottom: 1px solid var(--line);
+      }
+      .mode-label {
+        font-family: "Barlow Condensed", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: .1em;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink-soft);
+        margin-bottom: 6px;
+      }
+      .modes {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 5px;
+      }
+      .modes button {
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--ink-soft);
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: .04em;
+        min-height: 46px;
+        cursor: pointer;
+      }
+      .modes button[aria-pressed="true"] {
+        background: var(--accent);
+        color: var(--accent-ink);
+        box-shadow: var(--shadow);
+      }
+      .summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+      .chip {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 5px 12px;
+        font-weight: 600;
+      }
+      .chip strong { color: var(--accent); }
+      .search {
+        width: 100%;
+        margin-top: 10px;
+        padding: 10px 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--surface);
+        color: var(--ink);
+        font-size: 16px;
+      }
+
+      section.cat { margin-top: 16px; }
+      section.cat > h2 {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+        margin: 0 0 4px;
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      section.cat > h2 .count { font-size: 14px; color: var(--ink-soft); font-family: "Barlow", sans-serif; text-transform: none; letter-spacing: 0; font-weight: 500; }
+      .cat-note { color: var(--ink-soft); font-size: 14px; margin: 0 0 8px; }
+      .sup-tag {
+        font-family: "Barlow", sans-serif; font-size: 12px; font-weight: 700;
+        letter-spacing: .07em; text-transform: uppercase;
+        background: var(--gold-bg); border: 1px solid var(--gold-bright);
+        border-radius: 999px; padding: 3px 10px; color: var(--warn-ink);
+      }
+      .order-sup { font-family: "Barlow Condensed", sans-serif; font-size: 28px; font-weight: 700; text-transform: uppercase; margin: 24px 0 0; color: var(--accent); }
+      .order-sup-note { color: var(--ink-soft); font-size: 14px; margin: 0 0 4px; }
+
+      .row {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        box-shadow: var(--shadow);
+      }
+      .row-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+      .pname { font-weight: 600; font-size: 17px; }
+      .ptargets { color: var(--ink-soft); font-size: 13px; margin-top: 1px; }
+      .ptargets b { color: var(--ink); }
+      .need-badge {
+        flex: none;
+        text-align: center;
+        min-width: 64px;
+        border-radius: 10px;
+        padding: 6px 8px;
+        background: var(--ok-bg);
+        color: var(--ok);
+      }
+      .need-badge .n { font-family: "Barlow Condensed", sans-serif; font-size: 24px; font-weight: 700; line-height: 1; display: block; }
+      .need-badge .l { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+      .need-badge.low { background: var(--need-bg); color: var(--need); }
+      .need-badge.unset { background: var(--unset-bg); color: var(--unset-ink); }
+      .need-badge.hold { background: var(--warn-bg); color: var(--warn-ink); }
+      .need-badge.unset .n, .need-badge.hold .n { font-size: 15px; font-family: "Barlow", sans-serif; padding: 4px 0; }
+
+      .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      .field { min-width: 0; }
+      .field label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        color: var(--ink-soft);
+        margin-bottom: 3px;
+      }
+      .stepper { display: flex; align-items: stretch; gap: 6px; }
+      .stepper button, .stepper input { scroll-margin-bottom: 110px; scroll-margin-top: 200px; }
+      .stepper button {
+        flex: none;
+        width: 44px;
+        min-height: 44px;
+        border-radius: 9px;
+        border: 1px solid var(--line);
+        background: var(--surface-2);
+        color: var(--ink);
+        font-size: 20px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .stepper input {
+        flex: 1;
+        min-width: 0;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 600;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--bg);
+        color: var(--ink);
+        min-height: 44px;
+        padding: 4px;
+      }
+      .note {
+        margin-top: 9px;
+        font-size: 14px;
+        border-radius: 9px;
+        padding: 8px 10px;
+      }
+      .note.warn { background: var(--warn-bg); color: var(--warn-ink); font-weight: 600; }
+      .note.info { background: var(--surface-2); color: var(--ink-soft); }
+      .note.info b { color: var(--ink); }
+
+      .settings {
+        margin-top: 26px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+        box-shadow: var(--shadow);
+      }
+      .settings h2 {
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: 22px;
+        text-transform: uppercase;
+        margin: 0 0 8px;
+      }
+      .settings label.check {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 8px 0;
+        cursor: pointer;
+        min-height: 36px;
+      }
+      .settings input[type="checkbox"] { width: 22px; height: 22px; flex: none; margin-top: 1px; accent-color: var(--accent); }
+      .settings .hint { color: var(--ink-soft); font-size: 14px; display: block; }
+      .settings .numrow { display: flex; align-items: center; gap: 10px; padding: 8px 0; flex-wrap: wrap; }
+      .settings input[type="number"] {
+        width: 76px; text-align: center; font-weight: 600;
+        border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--ink);
+        min-height: 40px;
+      }
+
+      /* View tabs */
+      .tabs {
+        display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;
+        background: var(--surface-2); border: 1px solid var(--line);
+        border-radius: 12px; padding: 5px; margin: 12px 0 2px;
+      }
+      .tabs button {
+        border: 0; border-radius: 8px; background: transparent; color: var(--ink-soft);
+        font-family: "Barlow Condensed", sans-serif; font-size: 19px; font-weight: 600;
+        letter-spacing: .04em; min-height: 46px; cursor: pointer;
+      }
+      .tabs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); box-shadow: var(--shadow); }
+
+      /* Thursday count view */
+      #thursdayView { display: none; }
+      body.show-thursday #thursdayView { display: block; }
+      body.show-thursday #countView { display: none; }
+      body.show-thursday #orderView { display: none; }
+      .cinputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      .stepper.sm button { width: 38px; min-height: 42px; font-size: 18px; }
+      .stepper.sm input { min-height: 42px; font-size: 16px; }
+      .ctotal { margin-top: 9px; font-size: 14px; background: var(--surface-2); color: var(--ink-soft); border-radius: 9px; padding: 8px 10px; }
+      .ctotal b { color: var(--ink); }
+      .row.uncounted { border-style: dashed; }
+
+      /* Month-end count (inside the count view) */
+      .modes.period { grid-template-columns: 1fr 1fr; margin-bottom: 10px; }
+      #monthCatalog, #monthSettings, #monthNote { display: none; }
+      #monthProgress { display: none; }
+      #thursdayView.period-month #monthCatalog { display: block; }
+      #thursdayView.period-month #monthSettings { display: block; }
+      #thursdayView.period-month #monthNote { display: block; }
+      #thursdayView.period-month #monthProgress { display: flex; }
+      #thursdayView.period-month #countCatalog,
+      #thursdayView.period-month #thuSettings,
+      #thursdayView.period-month #thuNote,
+      #thursdayView.period-month #thuProgress { display: none; }
+      @media (min-width: 820px) {
+        .cinputs.f4 { grid-template-columns: repeat(4, 1fr); }
+        .cinputs.f3 { grid-template-columns: repeat(3, 1fr); }
+      }
+
+      /* Bottom bar */
+      .bar {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        z-index: 30;
+        background: var(--surface);
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -2px 10px rgba(0,0,0,.12);
+        padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+      }
+      .bar-inner { max-width: 880px; margin: 0 auto; display: flex; gap: 8px; align-items: center; }
+      .bar .total { flex: 1; font-size: 14px; color: var(--ink-soft); line-height: 1.2; }
+      .bar .total strong { color: var(--ink); font-size: 16px; display: block; }
+      .btn {
+        border: 0; border-radius: 10px; cursor: pointer; font-weight: 700;
+        min-height: 48px; padding: 10px 18px; font-size: 16px;
+      }
+      .btn.primary { background: var(--accent); color: var(--accent-ink); }
+      .btn.ghost { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); }
+
+      /* Receive view */
+      #receiveView { display: none; }
+      body.show-receive #receiveView { display: block; }
+      body.show-receive #countView { display: none; }
+      .btn.sm { min-height: 44px; padding: 8px 16px; font-size: 15px; }
+      .log-row {
+        display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+        background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+        padding: 10px 12px; margin-bottom: 8px; box-shadow: var(--shadow);
+      }
+
+      /* Order view */
+      #orderView { display: none; }
+      body.show-order #orderView { display: block; }
+      body.show-order #countView { display: none; }
+      .order-cat { font-family: "Barlow Condensed", sans-serif; font-size: 20px; text-transform: uppercase; margin: 18px 0 6px; }
+      table.order { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+      table.order td { padding: 9px 12px; border-bottom: 1px solid var(--line); font-size: 16px; }
+      table.order tr:last-child td { border-bottom: 0; }
+      table.order td.qty { text-align: right; font-weight: 700; font-family: "Barlow Condensed", sans-serif; font-size: 20px; white-space: nowrap; }
+      table.order td.qty small { display: block; font-family: "Barlow", sans-serif; font-size: 12px; font-weight: 500; color: var(--ink-soft); }
+      .empty {
+        background: var(--surface); border: 1px dashed var(--line); border-radius: 12px;
+        padding: 22px 16px; text-align: center; color: var(--ink-soft); margin-top: 16px;
+      }
+      .order-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+      .order-actions .btn { flex: 1; min-width: 140px; }
+      .toast {
+        position: fixed; left: 50%; transform: translateX(-50%);
+        bottom: 92px; z-index: 40;
+        background: var(--ink); color: var(--bg);
+        padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: 15px;
+        opacity: 0; pointer-events: none; transition: opacity .2s;
+        max-width: 90vw; text-align: center;
+      }
+      .toast.show { opacity: 1; }
+      .hidden { display: none !important; }
+      @media (min-width: 560px) {
+        .inputs { grid-template-columns: 1fr 1fr; }
+      }
+      @media (min-width: 700px) {
+        h1 { font-size: 52px; }
+      }
+      @media (max-width: 560px) {
+        h1 { font-size: 33px; }
+        header.top { padding: 12px 14px 10px; }
+        header.top .sub { font-size: 14px; line-height: 1.3; }
+        .tabs { margin-top: 8px; }
+        .tabs button { font-size: 16px; min-height: 42px; white-space: nowrap; letter-spacing: .02em; }
+        .modes button { font-size: 18px; min-height: 42px; }
+        .sticky { padding: 8px 0; }
+        .chip { padding: 4px 10px; font-size: 13px; }
+        .search { padding: 8px 12px; margin-top: 8px; }
+        section.cat { margin-top: 16px; }
+      }
+      @media print {
+        .sticky, .bar, .settings, .order-actions, .search, .tabs { display: none !important; }
+        body { background: #fff; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <div class="brand-row">
+          <div class="vip-badge" aria-hidden="true">VIP</div>
+          <div class="kicker">VIP Cinemas · Concessions</div>
+        </div>
+        <h1>VIP Cinemas Inventory Tracker</h1>
+        <p class="sub">Count what you have, pick how busy it'll be, and the guide works out what to order — for Vistar, ICEE, and Pepsi. Each supplier's sections below say how that order is placed.</p>
+      </header>
+
+      <div class="tabs" role="group" aria-label="View">
+        <button type="button" id="tabGuide" aria-pressed="true">Order guide</button>
+        <button type="button" id="tabCount" aria-pressed="false">Count</button>
+        <button type="button" id="tabReceive" aria-pressed="false">Receive</button>
+      </div>
+
+      <div id="countView">
+        <div class="sticky">
+          <div class="mode-label">Stocking for a…</div>
+          <div class="modes" role="group" aria-label="Stocking mode">
+            <button type="button" data-mode="busy" aria-pressed="false">Busy</button>
+            <button type="button" data-mode="average" aria-pressed="true">Average</button>
+            <button type="button" data-mode="slow" aria-pressed="false">Slow</button>
+          </div>
+          <div class="summary">
+            <span class="chip"><strong id="sumNeed">0</strong> items to order</span>
+            <span class="chip"><strong id="sumCounted">0</strong> of <span id="sumTotal">98</span> counted</span>
+            <span class="chip hidden" id="sumUnset"><strong id="sumUnsetN">0</strong> need admin setup</span>
+          </div>
+          <input class="search" id="search" type="search" placeholder="Search products…" aria-label="Search products" />
+        </div>
+
+        <main id="catalog"></main>
+
+        <div class="settings" id="settings">
+          <h2>Ordering settings</h2>
+          <label class="check">
+            <input type="checkbox" id="caseRound" checked />
+            <span><b>Round Lou Ana butter up to full cases</b>
+              <span class="hint">Butter ships 4 per case, so a need of 5 becomes 8 (2 cases). Turn off to order the exact unit count.</span></span>
+          </label>
+          <div class="numrow">
+            <label for="kettleThreshold"><b>Kettle cleaner reorder point</b></label>
+            <input type="number" id="kettleThreshold" min="0" step="0.5" value="3" />
+            <span class="hint">sleeves or fewer on hand → OK to order. Above this, cleaners stay on hold.</span>
+          </div>
+          <div class="numrow">
+            <button type="button" class="btn ghost" id="clearAll">Clear all counts</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="thursdayView">
+        <div class="sticky">
+          <div class="mode-label" id="countModeLabel">Thursday inventory count</div>
+          <div class="modes period" role="group" aria-label="Count period">
+            <button type="button" id="perThu" aria-pressed="true">Thursday</button>
+            <button type="button" id="perMonth" aria-pressed="false">Month-End</button>
+          </div>
+          <div class="summary" id="thuProgress">
+            <span class="chip"><strong id="cntDone">0</strong> of <span id="cntTotal">62</span> counted</span>
+            <span class="chip"><strong id="cntLeft">62</strong> still to count</span>
+          </div>
+          <div class="summary" id="monthProgress">
+            <span class="chip"><strong id="mcntDone">0</strong> of <span id="mcntTotal">97</span> counted</span>
+            <span class="chip"><strong id="mcntLeft">97</strong> still to count</span>
+          </div>
+          <input class="search" id="countSearch" type="search" placeholder="Search count sheet…" aria-label="Search count sheet" />
+        </div>
+
+        <p class="sub" id="thuNote" style="margin-top:14px;">Count in individual pieces — hot food in portions — using the count sheet's own names. Each total is shown here in its own units and converted to cases for reference. Counts stay on this page only — they don't change the order guide. Items marked count only aren't on any order guide; they're counted and totaled here only.</p>
+
+        <p class="sub" id="monthNote" style="margin-top:14px;">Month-end count, done once a month: the sellable count plus the non-sellable sheet — BIB syrups and supplies — all 97 rows. Kept separate from the Thursday count, and from the order guide — totals stay on this page only. BIBs are counted in whole BIBs only — a half-used BIB isn't counted. Items marked count only have no order target.</p>
+
+        <main id="countCatalog"></main>
+        <main id="monthCatalog"></main>
+
+        <div class="settings" id="thuSettings">
+          <h2>Thursday count</h2>
+          <div class="numrow">
+            <button type="button" class="btn ghost" id="clearCount">Clear Thursday count</button>
+            <span class="hint">Clears this count only — nothing else on any other page changes.</span>
+          </div>
+        </div>
+
+        <div class="settings" id="monthSettings">
+          <h2>Month-End count</h2>
+          <div class="numrow">
+            <button type="button" class="btn ghost" id="clearMonth">Clear month-end count</button>
+            <span class="hint">Clears this count only — nothing else on any other page changes.</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="receiveView">
+        <div class="sticky">
+          <div class="mode-label">Receiving — deliveries into stock</div>
+          <div class="summary">
+            <span class="chip"><strong id="rcvCount">0</strong> receipts this session</span>
+            <span class="chip"><strong id="rcvItems">0</strong> products restocked</span>
+          </div>
+          <input class="search" id="recvSearch" type="search" placeholder="Search products…" aria-label="Search products to receive" />
+        </div>
+
+        <p class="sub" style="margin-top:14px;">When a delivery arrives, enter what came in — in the same units as counting — and tap <b>Record received</b>. What you enter is logged here, with a running received total for each product. Receiving stays on this page only — it doesn't change the order guide or the counts. Like the counts, receiving is kept for this session only.</p>
+
+        <div id="recvLogWrap" class="hidden">
+          <h2 class="order-cat" style="margin-top:20px;">Received this session</h2>
+          <div id="recvLog"></div>
+        </div>
+
+        <main id="recvCatalog"></main>
+      </div>
+
+      <div id="orderView">
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:30px;text-transform:uppercase;margin:18px 0 0;">Order list</h2>
+        <p class="sub" id="orderMeta"></p>
+        <div id="orderBody"></div>
+        <div class="order-actions">
+          <button type="button" class="btn primary" id="copyOrder">Copy order</button>
+          <button type="button" class="btn ghost" id="backToCount">Back to counting</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bar">
+      <div class="bar-inner">
+        <div class="total"><strong id="barTotal">Nothing to order yet</strong><span id="barSub">Enter counts to build the order</span></div>
+        <button type="button" class="btn primary" id="viewOrderBtn">View order</button>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status"></div>
+
+    <script>
+      // Catalog — names, categories and Busy/Average/Slow targets exactly as
+      // on the Vistar order guide sheet. null = not set yet.
+      var CATS = [
+        { name: "Candy / Snacks", items: [
+          ["Airhead Bites", 8, 6, 4], ["Airhead Xtreme Bites", 8, 6, 4], ["Buncha Crunch", 8, 6, 4],
+          ["Cookie Dough Bites", 4, 3, 2], ["Cotton Candy", 3, 2, 2], ["Kids Fruit Snacks", 4, 3, 2],
+          ["Haribo Gummi Bears", 8, 6, 4], ["M&M Milk Chocolate", 9, 7, 5], ["M&M Peanuts", 9, 7, 5],
+          ["Milk Duds", 8, 6, 4], ["Mike and Ikes", 8, 6, 4], ["Nerd Gummy Clusters", 9, 7, 5],
+          ["Raisinets", 8, 6, 4], ["Reese's Pieces", 8, 6, 4], ["Skittles", 8, 6, 4],
+          ["Snowcaps", 8, 6, 4], ["Sour Patch Kids", 8, 6, 4], ["Sour Patch Watermelon", 8, 6, 4],
+          ["Swedish", 8, 6, 4], ["Sweetarts", 8, 6, 4], ["Sweetart Ropes", 8, 6, 4],
+          ["Trolli", 8, 6, 4], ["Twizzlers", 8, 6, 4]
+        ]},
+        { name: "Foods / Condiments", items: [
+          ["Tostitos Nachos", 4, 3, 2], ["Tostitos Cheese", 3, 2, 2],
+          ["Ricos Jalapenos", 1, 1, 0.5], ["Heinz Ketchup (500)", 1, 1, 0.5], ["Heinz Mustard (200)", 1, 1, 0.5],
+          ["Heinz Relish (200)", 1, 1, 0.5], ["Flavacol", 2, 2, 1], ["Snow Salt", 1, 1, 1],
+          ["Garlic Parmesan Salt", 1, 1, 0.5], ["Kettle Salt", 1, 1, 0.5], ["White Cheddar Salt", 1, 1, 0.5],
+          ["Nacho Cheddar Salt", 1, 1, 0.5]
+        ]},
+        { name: "Popcorn / Butter", items: [
+          ["Lou Ana Topping Butter", 10, 8, 6, { caseSize: 4 }],
+          ["SunGlo Popping Oil Canola", 20, 15, 10],
+          ["Popcorn Premium Platinum", 50, 40, 30]
+        ]},
+        { name: "Hot Food", items: [
+          ["Pizza", 4, 3, 2], ["Chicken Tenders", 4, 3, 2], ["Waffle Fries", 3, 3, 2],
+          ["Mozzarella Sticks", 4, 3, 2], ["Hot dogs", 4, 3, 2],
+          ["Hot Dog Buns", null, null, null, { supplier: "Walmart" }]
+        ]},
+        { name: "Sauces", items: [
+          ["BBQ Sauce", 3, 2, 1], ["Marinera Sauce", 3, 2, 1], ["Ranch Sauce", 3, 2, 1],
+          ["Buffalo Sauce", null, 2, 1], ["Honey Mustard Sauce", 3, 2, 1]
+        ]},
+        { name: "Misc", items: [
+          ["16oz Boats", 2, 1, 0.5], ["Kids Trays Dino", 3, 3, 2], ["Nacho Trays", 2, 2, 1],
+          ["Tork Paper Towel", 3, 2, 1], ["Tork Napkins", 4, 3, 2],
+          ["Inside Kettle Cleaner", 2, 2, 1, { kettle: true }],
+          ["Outside Kettle Cleaner", 2, 2, 1, { kettle: true }],
+          ["2oz Dart Solo Cups", 1, 1, 0.5], ["2oz Dart Solo Lids", 1, 1, 0.5],
+          ["10.25in Wrapped Straws", 5, 4, 3], ["46oz Tub", 3, 3, 2], ["85oz Tub", 6, 5, 4],
+          ["130oz Tub", 8, 6, 4], ["170oz Tub", 10, 8, 6]
+        ]},
+        { name: "ICEE", supplier: "ICEE",
+          note: "Monthly order. Email servicecall@icee.com and cc Josh, and provide them with our address when asked.",
+          items: [
+          ["Pepsi ICEE", 5, 4, 3], ["Cherry ICEE", 5, 4, 3], ["Blue Raspberry ICEE", 5, 4, 3]
+        ]},
+        { name: "ICEE Cups & Lids", supplier: "ICEE", items: [
+          ["ICEE Straws", 2, 1, 1], ["24oz FCB Cups", 2, 2, 1], ["32oz FCB Cups", 3, 2, 1],
+          ["44oz FCB Cups", 2, 2, 1], ["24oz Dome Lids", 2, 2, 1], ["32oz Dome Lids", 3, 2, 1],
+          ["44oz Dome Lids", 2, 2, 1]
+        ]},
+        { name: "Drinks", supplier: "Pepsi",
+          note: "Input all information on the Pepsi Portal.",
+          items: [
+          ["Pepsi", 8, 6, 5], ["Diet Pepsi", 10, 8, 7], ["Mountain Dew", 5, 4, 3],
+          ["Cherry Pepsi", 6, 5, 4], ["Pepsi Zero", 5, 4, null], ["Diet Mountain Dew", 3, 2, 1],
+          ["Mug Root Beer", 6, 5, 4], ["Starry", 6, 5, 4], ["Orange Crush", 4, 3, 2],
+          ["Brisk Raspberry Tea", 3, 2, 1], ["Pink Lemonade", 5, 4, 3],
+          ["Gatorade Fruit Punch", 3, 2, 1], ["Bottled Water", 20, 16, 12],
+          ["Lfe Water", 4, 3, 2], ["Cool Blue Gatorade", 4, 3, 2], ["Fruit Punch Gatorade", 4, 3, 2]
+        ]},
+        { name: "Cups & Lids", supplier: "Pepsi", items: [
+          ["16oz Cups", 5, 4, 3], ["22oz Cups", 5, 4, 3], ["32oz Cups", 5, 4, 3],
+          ["44oz Cups", 5, 4, 3], ["16-22oz Lids", 6, 5, 4], ["32oz Lids", 5, 4, 3],
+          ["44oz Lids", 5, 4, 3], ["Backup CO2 Tanks", 4, 4, 4]
+        ]}
+      ];
+
+      var products = [];
+      CATS.forEach(function (cat, ci) {
+        cat.items.forEach(function (it, ii) {
+          products.push({
+            id: ci + "-" + ii, cat: cat.name, supplier: cat.supplier || "Vistar", name: it[0],
+            busy: it[1], average: it[2], slow: it[3],
+            opts: it[4] || {}, have: null, incoming: null
+          });
+        });
+      });
+
+      var state = { mode: "average", caseRound: true, kettleThreshold: 3 };
+      var MODES = { busy: "Busy", average: "Average", slow: "Slow" };
+      var SUPPLIER_INFO = {
+        "Vistar": "Place the order at customerfirstsolutions.com",
+        "ICEE": "Monthly order — email servicecall@icee.com and cc Josh; provide our address when asked",
+        "Pepsi": "Input all information on the Pepsi Portal"
+      };
+
+      function fmt(n) {
+        if (n === null || n === undefined) return "—";
+        return (Math.round(n * 100) / 100).toString();
+      }
+
+      // Core calculation for one product under the current settings.
+      // Returns {status: 'ok'|'unset'|'hold', need, cases}
+      function calc(p) {
+        var target = p[state.mode];
+        if (target === null || target === undefined) return { status: "unset", need: 0 };
+        var have = p.have === null ? 0 : p.have;
+        var inc = p.incoming === null ? 0 : p.incoming;
+        if (p.opts.kettle && p.have !== null && have > state.kettleThreshold) {
+          return { status: "hold", need: 0 };
+        }
+        var need = Math.max(0, target - have - inc);
+        var cases = null;
+        if (p.opts.caseSize && state.caseRound && need > 0) {
+          cases = Math.ceil(need / p.opts.caseSize);
+          need = cases * p.opts.caseSize;
+        }
+        return { status: "ok", need: need, cases: cases };
+      }
+
+      function esc(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+
+      function render() {
+        var main = document.getElementById("catalog");
+        var q = document.getElementById("search").value.trim().toLowerCase();
+        var html = "";
+        CATS.forEach(function (cat) {
+          var rows = products.filter(function (p) {
+            return p.cat === cat.name && (!q || p.name.toLowerCase().indexOf(q) !== -1);
+          });
+          if (!rows.length) return;
+          html += '<section class="cat"><h2>' + esc(cat.name) +
+            (cat.supplier ? ' <span class="sup-tag">' + esc(cat.supplier) + '</span>' : '') +
+            ' <span class="count">' + rows.length + ' items</span></h2>' +
+            (cat.note ? '<p class="cat-note">' + esc(cat.note) + '</p>' : '');
+          rows.forEach(function (p) { html += rowHtml(p); });
+          html += "</section>";
+        });
+        if (!html) html = '<div class="empty">No products match that search.</div>';
+        main.innerHTML = html;
+        bindRows();
+        updateSummary();
+      }
+
+      function rowHtml(p) {
+        var c = calc(p);
+        var t = p[state.mode];
+        var badge;
+        if (c.status === "unset") {
+          badge = '<div class="need-badge unset"><span class="n">Not set</span><span class="l">Admin setup</span></div>';
+        } else if (c.status === "hold") {
+          badge = '<div class="need-badge hold"><span class="n">On hold</span><span class="l">Don\'t order yet</span></div>';
+        } else if (c.need > 0) {
+          badge = '<div class="need-badge low"><span class="n">' + fmt(c.need) + '</span><span class="l">Need</span></div>';
+        } else {
+          badge = '<div class="need-badge"><span class="n">0</span><span class="l">Stocked</span></div>';
+        }
+        var notes = "";
+        if (p.opts.caseSize) {
+          notes += '<div class="note info">Sold <b>4 per case</b>.' +
+            (c.cases ? ' Need rounds up to <b>' + c.cases + (c.cases === 1 ? ' case' : ' cases') + '</b>.' : '') + '</div>';
+        }
+        if (p.opts.supplier) {
+          notes += '<div class="note info">Order from <b>' + esc(p.opts.supplier) + '</b>, not Vistar. No stocking targets set yet — order by eye until an admin sets them.</div>';
+        }
+        if (p.opts.kettle) {
+          notes += '<div class="note warn">⚠ Do not order until the last ' + fmt(state.kettleThreshold) +
+            ' sleeves are being used. ' + (c.status === "hold" ? 'You still have more than that — this stays off the order.' : '') + '</div>';
+        }
+        if (c.status === "unset" && !p.opts.supplier) {
+          notes += '<div class="note info">No ' + MODES[state.mode] + ' target set for this item yet, so it\'s left off the automatic order.</div>';
+        }
+        return '<div class="row" data-id="' + p.id + '">' +
+          '<div class="row-top"><div><div class="pname">' + esc(p.name) + '</div>' +
+          '<div class="ptargets">Target (' + MODES[state.mode] + '): <b>' + (t === null ? "not set" : fmt(t)) + '</b>' +
+          ' · B ' + fmt(p.busy) + ' / A ' + fmt(p.average) + ' / S ' + fmt(p.slow) + '</div></div>' + badge + '</div>' +
+          '<div class="inputs">' +
+            '<div class="field"><label for="have-' + p.id + '">Have on hand</label>' +
+              '<div class="stepper"><button type="button" data-step="-1" data-for="have-' + p.id + '" aria-label="Decrease on hand">−</button>' +
+              '<input id="have-' + p.id + '" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0" value="' + (p.have === null ? "" : p.have) + '" />' +
+              '<button type="button" data-step="1" data-for="have-' + p.id + '" aria-label="Increase on hand">+</button></div></div>' +
+            '<div class="field"><label for="inc-' + p.id + '">Already incoming</label>' +
+              '<div class="stepper"><button type="button" data-step="-1" data-for="inc-' + p.id + '" aria-label="Decrease incoming">−</button>' +
+              '<input id="inc-' + p.id + '" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0" value="' + (p.incoming === null ? "" : p.incoming) + '" />' +
+              '<button type="button" data-step="1" data-for="inc-' + p.id + '" aria-label="Increase incoming">+</button></div></div>' +
+          '</div>' + notes + '</div>';
+      }
+
+      function findProduct(id) {
+        for (var i = 0; i < products.length; i++) if (products[i].id === id) return products[i];
+        return null;
+      }
+
+      function bindRows() {
+        var inputs = document.querySelectorAll("#catalog input[type=number]");
+        for (var i = 0; i < inputs.length; i++) {
+          inputs[i].addEventListener("input", function (e) {
+            var row = e.target.closest(".row");
+            var p = findProduct(row.getAttribute("data-id"));
+            var v = e.target.value === "" ? null : parseFloat(e.target.value);
+            if (v !== null && (isNaN(v) || v < 0)) v = null;
+            if (e.target.id.indexOf("have-") === 0) { p.have = v; } else p.incoming = v;
+            refreshRow(p);
+            updateSummary();
+          });
+        }
+        var btns = document.querySelectorAll("#catalog .stepper button");
+        for (var j = 0; j < btns.length; j++) {
+          btns[j].addEventListener("click", function (e) {
+            var input = document.getElementById(e.currentTarget.getAttribute("data-for"));
+            var step = parseFloat(e.currentTarget.getAttribute("data-step"));
+            var cur = input.value === "" ? 0 : parseFloat(input.value);
+            if (isNaN(cur)) cur = 0;
+            var next = Math.max(0, Math.round((cur + step * 0.5) * 100) / 100);
+            input.value = next;
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+          });
+        }
+      }
+
+      // Refresh just one row's badge/notes after a count changes,
+      // without rebuilding the row (keeps keyboard focus in the input).
+      function refreshRow(p) {
+        var row = document.querySelector('.row[data-id="' + p.id + '"]');
+        if (!row) return;
+        var fresh = document.createElement("div");
+        fresh.innerHTML = rowHtml(p);
+        var newRow = fresh.firstChild;
+        row.querySelector(".row-top").replaceWith(newRow.querySelector(".row-top"));
+        var oldNotes = row.querySelectorAll(".note");
+        for (var i = 0; i < oldNotes.length; i++) oldNotes[i].remove();
+        var newNotes = newRow.querySelectorAll(".note");
+        for (var j = 0; j < newNotes.length; j++) row.appendChild(newNotes[j]);
+      }
+
+      function orderItems() {
+        return products.map(function (p) {
+          var c = calc(p);
+          return { p: p, c: c };
+        }).filter(function (x) { return x.c.status === "ok" && x.c.need > 0; });
+      }
+
+      function updateSummary() {
+        var items = orderItems();
+        var counted = products.filter(function (p) { return p.have !== null; }).length;
+        var unset = products.filter(function (p) { return calc(p).status === "unset"; }).length;
+        document.getElementById("sumNeed").textContent = items.length;
+        document.getElementById("sumCounted").textContent = counted;
+        document.getElementById("sumTotal").textContent = products.length;
+        document.getElementById("sumUnset").classList.toggle("hidden", unset === 0);
+        document.getElementById("sumUnsetN").textContent = unset;
+        if (currentView() !== "thursday" && currentView() !== "receive") {
+          var totalUnits = items.reduce(function (s, x) { return s + x.c.need; }, 0);
+          document.getElementById("barTotal").textContent = items.length
+            ? items.length + " items · " + fmt(totalUnits) + " units to order"
+            : "Nothing to order yet";
+          document.getElementById("barSub").textContent = items.length
+            ? "Stocking for a " + MODES[state.mode].toLowerCase() + " period"
+            : "Enter counts to build the order";
+        }
+      }
+
+      function renderOrder() {
+        var items = orderItems();
+        var body = document.getElementById("orderBody");
+        var now = new Date();
+        document.getElementById("orderMeta").textContent =
+          "VIP Cinemas · Stocking for: " + MODES[state.mode] + " · " +
+          now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        if (!items.length) {
+          body.innerHTML = '<div class="empty">Nothing needs ordering at the ' + MODES[state.mode] +
+            ' level with the counts entered.<br/>Go back and enter what you have — anything below target shows up here.</div>';
+          return;
+        }
+        var html = "";
+        var suppliers = [];
+        items.forEach(function (x) { if (suppliers.indexOf(x.p.supplier) === -1) suppliers.push(x.p.supplier); });
+        suppliers.forEach(function (sup) {
+          html += '<div class="order-sup">' + esc(sup) + ' order</div>' +
+            '<p class="order-sup-note">' + esc(SUPPLIER_INFO[sup] || "") + '</p>';
+          CATS.forEach(function (cat) {
+            var rows = items.filter(function (x) { return x.p.cat === cat.name && x.p.supplier === sup; });
+            if (!rows.length) return;
+            html += '<div class="order-cat">' + esc(cat.name) + '</div><table class="order">';
+            rows.forEach(function (x) {
+              html += "<tr><td>" + esc(x.p.name) + "</td><td class='qty'>" + fmt(x.c.need) +
+                (x.c.cases ? "<small>" + x.c.cases + (x.c.cases === 1 ? " case" : " cases") + " × 4</small>" : "") + "</td></tr>";
+            });
+            html += "</table>";
+          });
+        });
+        var held = products.filter(function (p) { return calc(p).status === "hold"; });
+        if (held.length) {
+          html += '<div class="note warn" style="margin-top:16px;">Held off this order: ' +
+            held.map(function (p) { return esc(p.name); }).join(", ") +
+            ' — kettle cleaners aren\'t ordered until the last ' + fmt(state.kettleThreshold) + ' sleeves are in use.</div>';
+        }
+        body.innerHTML = html;
+      }
+
+      function orderText() {
+        var items = orderItems();
+        var suppliers = [];
+        items.forEach(function (x) { if (suppliers.indexOf(x.p.supplier) === -1) suppliers.push(x.p.supplier); });
+        var blocks = suppliers.map(function (sup) {
+          var lines = ["VIP CINEMAS — " + sup.toUpperCase() + " ORDER", "Stocking for: " + MODES[state.mode], ""];
+          var lastCat = "";
+          items.filter(function (x) { return x.p.supplier === sup; }).forEach(function (x) {
+            if (x.p.cat !== lastCat) { lastCat = x.p.cat; lines.push(lastCat.toUpperCase()); }
+            lines.push("  " + x.p.name + " — " + fmt(x.c.need) + (x.c.cases ? " (" + x.c.cases + " cases × 4)" : ""));
+          });
+          return lines.join("\n");
+        });
+        return blocks.join("\n\n");
+      }
+
+      function toast(msg) {
+        var t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(function () { t.classList.remove("show"); }, 2200);
+      }
+
+      // Mode buttons
+      var modeBtns = document.querySelectorAll(".modes button");
+      modeBtns.forEach(function (b) {
+        b.addEventListener("click", function () {
+          state.mode = b.getAttribute("data-mode");
+          modeBtns.forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+          render();
+        });
+      });
+
+      document.getElementById("search").addEventListener("input", render);
+      document.getElementById("caseRound").addEventListener("change", function (e) {
+        state.caseRound = e.target.checked; render();
+      });
+      document.getElementById("kettleThreshold").addEventListener("input", function (e) {
+        var v = parseFloat(e.target.value);
+        state.kettleThreshold = isNaN(v) || v < 0 ? 3 : v;
+        render();
+      });
+      document.getElementById("clearAll").addEventListener("click", function () {
+        products.forEach(function (p) { p.have = null; p.incoming = null; });
+        render();
+        toast("All counts cleared");
+      });
+      document.getElementById("viewOrderBtn").addEventListener("click", function () {
+        setView(currentView() === "order" ? "guide" : "order");
+      });
+      document.getElementById("backToCount").addEventListener("click", function () {
+        setView("guide");
+      });
+      document.getElementById("tabGuide").addEventListener("click", function () { setView("guide"); });
+      document.getElementById("tabCount").addEventListener("click", function () { setView("thursday"); });
+      document.getElementById("copyOrder").addEventListener("click", function () {
+        var text = orderText();
+        function done() { toast("Order copied — paste it anywhere"); }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, function () { fallback(); });
+        } else { fallback(); }
+        function fallback() {
+          var ta = document.createElement("textarea");
+          ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand("copy"); done(); }
+          catch (e) { toast("Copy didn't work — screenshot the list instead"); }
+          document.body.removeChild(ta);
+        }
+      });
+
+      // ---- Thursday count sheet -------------------------------------------
+      // All 62 rows in sheet order, with the sheet's own item names.
+      // Item = [name, perBox, perSleeve, orderGuideName]. A 4th entry of null
+      // means count-only (no order-guide entry); when the 4th entry is absent
+      // the order-guide name matches the count-sheet name. Hot food uses
+      // portions per case / portions per sleeve from the portion guide
+      // (ranges use the midpoint), which overrides the count sheet.
+      var COUNT_CATS = [
+        { name: "Candy", type: "each", noSleeve: true,
+          note: "Counted in individual pieces: boxes × per box + stand + misc. Candy has no sleeves.",
+          items: [
+          ["Mike and Ike", 12, 1, "Mike and Ikes"], ["M&M Plain", 12, 1, "M&M Milk Chocolate"],
+          ["Buncha Crunch", 12, 1], ["Chewy Sweetarts", 12, 1, "Sweetarts"],
+          ["Sourpatch Kids", 12, 1, "Sour Patch Kids"], ["Sourpatch WM", 12, 1, "Sour Patch Watermelon"],
+          ["Haribo Goldbears", 12, 1, "Haribo Gummi Bears"], ["Trolli Worms", 12, 1, "Trolli"],
+          ["Snocaps", 15, 1, "Snowcaps"], ["Twizzlers", 12, 1], ["Skittles", 12, 1],
+          ["Milk Duds", 12, 1], ["Peanut M&M", 12, 1, "M&M Peanuts"], ["Reese's Pieces", 12, 1],
+          ["Swedish Fish", 12, 1, "Swedish"], ["Sweetart Ropes", 12, 1],
+          ["Airhead Extreme", 12, 1, "Airhead Xtreme Bites"], ["Airhead SoftBite", 12, 1, "Airhead Bites"],
+          ["Cookie Dough Bites", 30, 1], ["Nerd Clusters", 12, 1, "Nerd Gummy Clusters"],
+          ["Raisinets", 15, 1], ["Starburst Mini", 8, 1, null], ["Cotton Candy", 24, 1],
+          ["Kid's Candy", 300, 1, null]
+        ]},
+        { name: "Pepsi Products", type: "each", noSleeve: true,
+          note: "Counted in individual pieces: boxes × per box + stand + misc. Bottled drinks have no sleeves — counted by the case or by the individual number.",
+          items: [
+          ["Bottled Water", 24, 1], ["1L Lifewtr", 12, 1, "Lfe Water"],
+          ["Gat - Glacier Cherry (bottles)", 24, 1, null], ["Gat - Glacier Freeze (bottles)", 24, 1, null],
+          ["Tropical Vibe Celcius", 12, 1, null], ["Watermelon Celcius", 12, 1, null],
+          ["Peach Vibe Celcius", 12, 1, null], ["Orange Vibe Celcius", 12, 1, null],
+          ["PureLeaf Sweet Tea", 12, 1, null], ["PureLeaf Unsweetened Tea", 12, 1, null],
+          ["ALANI", 12, 1, null]
+        ]},
+        { name: "Hot Food", type: "hot",
+          note: "Counted in portions, using the hot food portion guide: boxes × portions per case + sleeves × portions per sleeve + loose portions.",
+          items: [
+          ["Chicken Tenders", 20, 10], ["Mozzerella Stick", 28.5, 4.75, "Mozzarella Sticks"],
+          ["Mac N Cheese Bites", 24, 6, null], ["Mini Tacos", 42, 10.5, null],
+          ["Fried Pickles", 32, 16, null], ["Waffle Fries", 63, 10.5],
+          ["Nacho Chips", 28, 28, "Tostitos Nachos"], ["Hot Dogs (Nathans)", 50, 2, "Hot dogs"],
+          ["Pretzel (biites)", 19.5, 19.5, null], ["Pizza", 1, 1],
+          ["Mini Corn Dog", 17, 8.5, null], ["POPPERS", 27.5, 7, null],
+          ["PRETZEL STICKS", 24, 24, null]
+        ]},
+        { name: "Paper Products", type: "each",
+          note: "Counted in individual pieces: boxes × per box + sleeves × per sleeve + stand + misc. Cup and tub sizes follow the ounce order on the order guide (smallest ounces = smallest size).",
+          items: [
+          ["Kid's Drink Cups", 1200, 50, "16oz Cups"], ["Small Drink Cups", 1000, 40, "22oz Cups"],
+          ["Medium Drink Cups", 500, 25, "32oz Cups"], ["Large Drink Cups", 500, 25, "44oz Cups"],
+          ["Small Icee Cups", 1000, 50, "24oz FCB Cups"], ["Medium Icee Cups", 480, 40, "32oz FCB Cups"],
+          ["Large Icee Cups", 480, 32, "44oz FCB Cups"], ["Value Tubs", 600, 25, "46oz Tub"],
+          ["Small Tubs", 300, 50, "85oz Tub"], ["Medium Tubs", 300, 50, "130oz Tub"],
+          ["Large Tubs", 150, 25, "170oz Tub"], ["VIP Bucket", 100, 20, null],
+          ["Nacho Tray", 500, 125, "Nacho Trays"], ["Kid's Tray Dino", 250, 25, "Kids Trays Dino"]
+        ]}
+      ];
+
+      var countItems = [];
+      COUNT_CATS.forEach(function (cat, ci) {
+        cat.items.forEach(function (it, ii) {
+          countItems.push({
+            id: "c" + ci + "-" + ii, cat: cat.name, type: cat.type, noSleeve: !!cat.noSleeve, name: it[0],
+            perBox: it[1], perSleeve: it[2],
+            order: it.length > 3 ? it[3] : it[0],
+            boxes: null, sleeves: null, stand: null, misc: null, portions: null
+          });
+        });
+      });
+
+      // Total in the sheet's units (eaches, or portions for hot food) and the
+      // same total converted to cases, shown in this view for reference.
+      function countCalc(it) {
+        var entered = [it.boxes, it.sleeves, it.stand, it.misc, it.portions].some(function (v) { return v !== null; });
+        if (!entered) return { counted: false, total: 0, cases: 0 };
+        var total;
+        if (it.type === "hot") {
+          total = (it.boxes || 0) * it.perBox + (it.sleeves || 0) * it.perSleeve + (it.portions || 0);
+        } else if (it.noSleeve) {
+          total = (it.boxes || 0) * it.perBox + (it.stand || 0) + (it.misc || 0);
+        } else {
+          total = (it.boxes || 0) * it.perBox + (it.sleeves || 0) * it.perSleeve + (it.stand || 0) + (it.misc || 0);
+        }
+        return { counted: true, total: total, cases: total / it.perBox };
+      }
+
+      function findCountItem(id) {
+        for (var i = 0; i < countItems.length; i++) if (countItems[i].id === id) return countItems[i];
+        return null;
+      }
+
+      // Counts are independent: a counted total lives only in this view,
+      // shown in its own units and converted to cases for reference. It
+      // never writes to the order guide or any other view.
+      function countField(it, key, label) {
+        var id = "cnt-" + key + "-" + it.id;
+        var v = it[key];
+        return '<div class="field"><label for="' + id + '">' + label + '</label>' +
+          '<div class="stepper sm"><button type="button" data-step="-1" data-for="' + id + '" aria-label="Decrease">−</button>' +
+          '<input id="' + id + '" data-field="' + key + '" type="number" inputmode="decimal" min="0" step="1" placeholder="0" value="' + (v === null ? "" : v) + '" />' +
+          '<button type="button" data-step="1" data-for="' + id + '" aria-label="Increase">+</button></div></div>';
+      }
+
+      function countRowHtml(it) {
+        var c = countCalc(it);
+        var unit = it.type === "hot" ? "portions" : "eaches";
+        var badge;
+        if (c.counted) {
+          badge = '<div class="need-badge"><span class="n">' + fmt(c.total) + '</span><span class="l">' + unit + '</span></div>';
+        } else {
+          badge = '<div class="need-badge unset"><span class="n">Not counted</span><span class="l">To count</span></div>';
+        }
+        var conv;
+        if (it.type === "hot") conv = fmt(it.perBox) + " portions per case · " + fmt(it.perSleeve) + " per sleeve";
+        else if (it.noSleeve) conv = "Per box " + fmt(it.perBox);
+        else conv = "Per box " + fmt(it.perBox) + " · Per sleeve " + fmt(it.perSleeve);
+        var map = "";
+        if (!it.order) map = ' · <b>Count only</b> — not on the order guide';
+        else if (it.order !== it.name) map = ' · Order guide: <b>' + esc(it.order) + '</b>';
+        var fields;
+        if (it.type === "hot") {
+          fields = countField(it, "boxes", "Boxes on hand") + countField(it, "sleeves", "Sleeves on hand") + countField(it, "portions", "Portions on hand");
+        } else if (it.noSleeve) {
+          fields = countField(it, "boxes", "Stock Room boxes") + countField(it, "stand", "Stand (each)") + countField(it, "misc", "Misc (each)");
+        } else {
+          fields = countField(it, "boxes", "Stock Room boxes") + countField(it, "sleeves", "Stock Room sleeves") + countField(it, "stand", "Stand (each)") + countField(it, "misc", "Misc (each)");
+        }
+        var total = "";
+        if (c.counted) {
+          total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " " + unit + "</b>" +
+            (it.order
+              ? " = <b>" + fmt(c.cases) + " cases</b> (converted, for reference)."
+              : " — count only, no order target.") + "</div>";
+        }
+        return '<div class="row' + (c.counted ? "" : " uncounted") + '" data-cid="' + it.id + '">' +
+          '<div class="row-top"><div><div class="pname">' + esc(it.name) + '</div>' +
+          '<div class="ptargets">' + conv + map + '</div></div>' + badge + '</div>' +
+          '<div class="cinputs ' + (it.type === "hot" || it.noSleeve ? "f3" : "f4") + '">' + fields + '</div>' + total + '</div>';
+      }
+
+      function renderCount() {
+        var main = document.getElementById("countCatalog");
+        var q = document.getElementById("countSearch").value.trim().toLowerCase();
+        var html = "";
+        COUNT_CATS.forEach(function (cat) {
+          var rows = countItems.filter(function (it) {
+            return it.cat === cat.name && (!q || it.name.toLowerCase().indexOf(q) !== -1 ||
+              (it.order && it.order.toLowerCase().indexOf(q) !== -1));
+          });
+          if (!rows.length) return;
+          html += '<section class="cat"><h2>' + esc(cat.name) +
+            ' <span class="count">' + rows.length + ' items</span></h2>' +
+            '<p class="cat-note">' + esc(cat.note) + '</p>';
+          rows.forEach(function (it) { html += countRowHtml(it); });
+          html += "</section>";
+        });
+        if (!html) html = '<div class="empty">No count-sheet items match that search.</div>';
+        main.innerHTML = html;
+        bindCountRows();
+        updateCountProgress();
+      }
+
+      function bindCountRows() {
+        var inputs = document.querySelectorAll("#countCatalog input[type=number]");
+        for (var i = 0; i < inputs.length; i++) {
+          inputs[i].addEventListener("input", function (e) {
+            var row = e.target.closest(".row");
+            var it = findCountItem(row.getAttribute("data-cid"));
+            var v = e.target.value === "" ? null : parseFloat(e.target.value);
+            if (v !== null && (isNaN(v) || v < 0)) v = null;
+            it[e.target.getAttribute("data-field")] = v;
+            refreshCountRow(it);
+            updateCountProgress();
+          });
+        }
+        var btns = document.querySelectorAll("#countCatalog .stepper button");
+        for (var j = 0; j < btns.length; j++) {
+          btns[j].addEventListener("click", function (e) {
+            var input = document.getElementById(e.currentTarget.getAttribute("data-for"));
+            var step = parseFloat(e.currentTarget.getAttribute("data-step"));
+            var cur = input.value === "" ? 0 : parseFloat(input.value);
+            if (isNaN(cur)) cur = 0;
+            input.value = Math.max(0, cur + step);
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+          });
+        }
+      }
+
+      // Refresh one count row's badge/total without rebuilding it, so the
+      // input being typed in keeps focus.
+      function refreshCountRow(it) {
+        var row = document.querySelector('.row[data-cid="' + it.id + '"]');
+        if (!row) return;
+        var fresh = document.createElement("div");
+        fresh.innerHTML = countRowHtml(it);
+        var newRow = fresh.firstChild;
+        row.querySelector(".row-top").replaceWith(newRow.querySelector(".row-top"));
+        row.classList.toggle("uncounted", !countCalc(it).counted);
+        var old = row.querySelector(".ctotal");
+        if (old) old.remove();
+        var nt = newRow.querySelector(".ctotal");
+        if (nt) row.appendChild(nt);
+      }
+
+      function updateCountProgress() {
+        var done = 0;
+        countItems.forEach(function (it) { if (countCalc(it).counted) done++; });
+        document.getElementById("cntDone").textContent = done;
+        document.getElementById("cntTotal").textContent = countItems.length;
+        document.getElementById("cntLeft").textContent = countItems.length - done;
+        syncCountBar();
+      }
+
+      // The bottom bar follows whichever count period is on screen.
+      function syncCountBar() {
+        if (currentView() !== "thursday") return;
+        if (countPeriod === "month") {
+          var mdone = 0;
+          monthItems.forEach(function (it) { if (monthCalc(it).counted) mdone++; });
+          document.getElementById("barTotal").textContent = mdone + " of " + monthItems.length + " counted";
+          document.getElementById("barSub").textContent = "Month-end count — sellable + non-sellable";
+        } else {
+          var done = 0;
+          countItems.forEach(function (it) { if (countCalc(it).counted) done++; });
+          document.getElementById("barTotal").textContent = done + " of " + countItems.length + " counted";
+          document.getElementById("barSub").textContent = "Count totals stay on this page — cases shown for reference";
+        }
+      }
+
+      // ---- Month-end count --------------------------------------------------
+      // The month-end count is the sellable sheet (the same 62 rows as the
+      // Thursday count, but with its own separate counts) plus the
+      // non-sellable sheet below — 18 BIB syrups and 17 supplies, in sheet
+      // order — for 97 rows total, counted once a month.
+      // BIB item = [name, gallons per BIB, orderGuideName|null].
+      // Supply item = [name, perBox, perSleeve, orderGuideName|null, extras?].
+      var MONTH_CATS = COUNT_CATS.concat([
+        { name: "Non-sellable — BIB Syrups", type: "bib",
+          note: "Count whole BIBs only — a half-used BIB is not counted. Gallons are derived (BIBs × gallons per BIB) and shown here for reference.",
+          items: [
+          ["Pepsi BIB", 5, "Pepsi"], ["Diet Pepsi BIB", 3, "Diet Pepsi"],
+          ["Mountain Dew BIB", 5, "Mountain Dew"], ["Starry BIB", 3, "Starry"],
+          ["Lemonade BIB", 3, "Pink Lemonade"], ["Orange BIB", 3, "Orange Crush"],
+          ["Caffiene Free Diet Pepsi BIB", 3, null], ["Code Red BIB", 3, null],
+          ["Root Beer BIB", 3, "Mug Root Beer"], ["Wild Cherry BIB", 3, "Cherry Pepsi"],
+          ["Diet Dew BIB", 3, "Diet Mountain Dew"], ["Raspberry Tea BIB", 3, "Brisk Raspberry Tea"],
+          ["Pepsi Zero BIB", 3, "Pepsi Zero"], ["Unsweet Tea BIB", 3, null],
+          ["Blue FCB BIB", 5, "Blue Raspberry ICEE"], ["Mountain Dew FCB BIB", 3, null],
+          ["Red FCB BIB", 5, "Cherry ICEE"], ["Pepsi ICEE BIB", 3, "Pepsi ICEE"]
+        ]},
+        { name: "Non-sellable — Supplies", type: "supply",
+          note: "Counted in eaches like the Thursday rows: boxes × per box + sleeves × per sleeve + each, converted to cases for reference.",
+          items: [
+          ["Popcorn Seed", 1, 1, "Popcorn Premium Platinum"], ["Popping Oil", 1, 1, "SunGlo Popping Oil Canola"],
+          ["Butter Topping (by each)", 1, 1, "Lou Ana Topping Butter", { divisor: 4, conv: "Counted by the tub · 4 tubs = 1 case" }],
+          ["Cheese (4 bags per box)", 4, 1, "Tostitos Cheese", { portionsPer: 35, conv: "4 bags per box · 35 portions per bag · 140 portions per box" }],
+          ["Jalapeno Peppers", 4, 1, "Ricos Jalapenos"],
+          ["KRN - Kettle Corn", 6, 1, "Kettle Salt"], ["KRN - Nacho Cheese", 6, 1, "Nacho Cheddar Salt"],
+          ["KRN - Ranch", 6, 1, null], ["KRN - White Cheddar", 6, 1, "White Cheddar Salt"],
+          ["KRN - Parm Garlic", 6, 1, "Garlic Parmesan Salt"], ["Premium Salt", 6, 1, null],
+          ["Flavacol Salt", 12, 1, "Flavacol"], ["Portion Lids", 1, 1, "2oz Dart Solo Lids"],
+          ["Portion Cups", 1, 1, "2oz Dart Solo Cups"], ["Frying Oil", 1, 1, null],
+          ["Paper Food Tray - 3 lb", 500, 125, "16oz Boats"], ["Pizza Box", 192, 16, null]
+        ]}
+      ]);
+
+      var monthItems = [];
+      MONTH_CATS.forEach(function (cat, ci) {
+        cat.items.forEach(function (it, ii) {
+          var m = {
+            id: "m" + ci + "-" + ii, cat: cat.name, kind: cat.type, type: cat.type,
+            noSleeve: !!cat.noSleeve, name: it[0],
+            boxes: null, sleeves: null, stand: null, misc: null, portions: null, each: null, bibs: null
+          };
+          if (cat.type === "bib") { m.gal = it[1]; m.order = it[2]; }
+          else {
+            m.perBox = it[1]; m.perSleeve = it[2];
+            m.order = it.length > 3 ? it[3] : it[0];
+            if (it[4]) {
+              m.divisor = it[4].divisor || null;
+              m.portionsPer = it[4].portionsPer || null;
+              m.convNote = it[4].conv || null;
+            }
+          }
+          monthItems.push(m);
+        });
+      });
+
+      function monthCalc(it) {
+        if (it.kind === "bib") {
+          if (it.bibs === null) return { counted: false, total: 0, have: 0 };
+          return { counted: true, total: it.bibs, gallons: it.bibs * it.gal, have: it.bibs };
+        }
+        if (it.kind === "supply") {
+          if (it.boxes === null && it.sleeves === null && it.each === null) return { counted: false, total: 0, have: 0 };
+          var total = (it.boxes || 0) * it.perBox + (it.sleeves || 0) * it.perSleeve + (it.each || 0);
+          var cases = total / (it.divisor || it.perBox);
+          return { counted: true, total: total, cases: cases, have: cases };
+        }
+        var c = countCalc(it);
+        return { counted: c.counted, total: c.total, cases: c.cases, have: c.cases };
+      }
+
+      function findMonthItem(id) {
+        for (var i = 0; i < monthItems.length; i++) if (monthItems[i].id === id) return monthItems[i];
+        return null;
+      }
+
+      function monthRowHtml(it) {
+        var c = monthCalc(it);
+        var unit = it.kind === "hot" ? "portions" : (it.kind === "bib" ? "BIBs" : "eaches");
+        var badge = c.counted
+          ? '<div class="need-badge"><span class="n">' + fmt(c.total) + '</span><span class="l">' + unit + '</span></div>'
+          : '<div class="need-badge unset"><span class="n">Not counted</span><span class="l">To count</span></div>';
+        var map = "";
+        if (!it.order) map = ' · <b>Count only</b> — not on the order guide';
+        else if (it.order !== it.name) map = ' · Order guide: <b>' + esc(it.order) + '</b>';
+        var conv, fields, gridCls, total = "";
+        if (it.kind === "bib") {
+          conv = fmt(it.gal) + " gallons per BIB · whole BIBs only" + map;
+          fields = countField(it, "bibs", "Whole BIBs");
+          gridCls = "f3";
+          if (c.counted) {
+            total = '<div class="ctotal">Total: <b>' + fmt(c.total) + (c.total === 1 ? " BIB" : " BIBs") +
+              " = " + fmt(c.gallons) + " gal</b>" +
+              " — counted here only." + "</div>";
+          }
+        } else if (it.kind === "supply") {
+          conv = "Per box " + fmt(it.perBox) + " · Per sleeve " + fmt(it.perSleeve) + (it.convNote ? " · " + esc(it.convNote) : "") + map;
+          fields = countField(it, "boxes", "Boxes") + countField(it, "sleeves", "Sleeves") + countField(it, "each", "Each");
+          gridCls = "f3";
+          if (c.counted) {
+            total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " eaches</b>" +
+              (it.portionsPer ? " (" + fmt(c.total * it.portionsPer) + " portions)" : "") +
+              " = <b>" + fmt(c.cases) + " cases</b>" +
+              (it.order ? " (converted, for reference)." : " — count only, no order target.") + "</div>";
+          }
+        } else if (it.kind === "hot") {
+          conv = fmt(it.perBox) + " portions per case · " + fmt(it.perSleeve) + " per sleeve" + map;
+          fields = countField(it, "boxes", "Boxes on hand") + countField(it, "sleeves", "Sleeves on hand") + countField(it, "portions", "Portions on hand");
+          gridCls = "f3";
+          if (c.counted) {
+            total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " portions</b> = <b>" + fmt(c.cases) + " cases</b>" +
+              (it.order ? " (converted, for reference)." : " — count only, no order target.") + "</div>";
+          }
+        } else {
+          if (it.noSleeve) {
+            conv = "Per box " + fmt(it.perBox) + map;
+            fields = countField(it, "boxes", "Stock Room boxes") + countField(it, "stand", "Stand (each)") + countField(it, "misc", "Misc (each)");
+            gridCls = "f3";
+          } else {
+            conv = "Per box " + fmt(it.perBox) + " · Per sleeve " + fmt(it.perSleeve) + map;
+            fields = countField(it, "boxes", "Stock Room boxes") + countField(it, "sleeves", "Stock Room sleeves") + countField(it, "stand", "Stand (each)") + countField(it, "misc", "Misc (each)");
+            gridCls = "f4";
+          }
+          if (c.counted) {
+            total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " eaches</b> = <b>" + fmt(c.cases) + " cases</b>" +
+              (it.order ? " (converted, for reference)." : " — count only, no order target.") + "</div>";
+          }
+        }
+        return '<div class="row' + (c.counted ? "" : " uncounted") + '" data-mid="' + it.id + '">' +
+          '<div class="row-top"><div><div class="pname">' + esc(it.name) + '</div>' +
+          '<div class="ptargets">' + conv + '</div></div>' + badge + '</div>' +
+          '<div class="cinputs ' + gridCls + '">' + fields + '</div>' + total + '</div>';
+      }
+
+      function renderMonth() {
+        var main = document.getElementById("monthCatalog");
+        var q = document.getElementById("countSearch").value.trim().toLowerCase();
+        var html = "";
+        MONTH_CATS.forEach(function (cat) {
+          var rows = monthItems.filter(function (it) {
+            return it.cat === cat.name && (!q || it.name.toLowerCase().indexOf(q) !== -1 ||
+              (it.order && it.order.toLowerCase().indexOf(q) !== -1));
+          });
+          if (!rows.length) return;
+          html += '<section class="cat"><h2>' + esc(cat.name) +
+            ' <span class="count">' + rows.length + ' items</span></h2>' +
+            '<p class="cat-note">' + esc(cat.note) + '</p>';
+          rows.forEach(function (it) { html += monthRowHtml(it); });
+          html += "</section>";
+        });
+        if (!html) html = '<div class="empty">No count-sheet items match that search.</div>';
+        main.innerHTML = html;
+        bindMonthRows();
+        updateMonthProgress();
+      }
+
+      function bindMonthRows() {
+        var inputs = document.querySelectorAll("#monthCatalog input[type=number]");
+        for (var i = 0; i < inputs.length; i++) {
+          inputs[i].addEventListener("input", function (e) {
+            var row = e.target.closest(".row");
+            var it = findMonthItem(row.getAttribute("data-mid"));
+            var v = e.target.value === "" ? null : parseFloat(e.target.value);
+            if (v !== null && (isNaN(v) || v < 0)) v = null;
+            it[e.target.getAttribute("data-field")] = v;
+            refreshMonthRow(it);
+            updateMonthProgress();
+          });
+        }
+        var btns = document.querySelectorAll("#monthCatalog .stepper button");
+        for (var j = 0; j < btns.length; j++) {
+          btns[j].addEventListener("click", function (e) {
+            var input = document.getElementById(e.currentTarget.getAttribute("data-for"));
+            var step = parseFloat(e.currentTarget.getAttribute("data-step"));
+            var cur = input.value === "" ? 0 : parseFloat(input.value);
+            if (isNaN(cur)) cur = 0;
+            input.value = Math.max(0, cur + step);
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+          });
+        }
+      }
+
+      // Refresh one month-end row's badge/total without rebuilding it, so
+      // the input being typed in keeps focus.
+      function refreshMonthRow(it) {
+        var row = document.querySelector('.row[data-mid="' + it.id + '"]');
+        if (!row) return;
+        var fresh = document.createElement("div");
+        fresh.innerHTML = monthRowHtml(it);
+        var newRow = fresh.firstChild;
+        row.querySelector(".row-top").replaceWith(newRow.querySelector(".row-top"));
+        row.classList.toggle("uncounted", !monthCalc(it).counted);
+        var old = row.querySelector(".ctotal");
+        if (old) old.remove();
+        var nt = newRow.querySelector(".ctotal");
+        if (nt) row.appendChild(nt);
+      }
+
+      function updateMonthProgress() {
+        var done = 0;
+        monthItems.forEach(function (it) { if (monthCalc(it).counted) done++; });
+        document.getElementById("mcntDone").textContent = done;
+        document.getElementById("mcntTotal").textContent = monthItems.length;
+        document.getElementById("mcntLeft").textContent = monthItems.length - done;
+        syncCountBar();
+      }
+
+      // ---- Count period toggle (Thursday / Month-End) -----------------------
+      var countPeriod = "thu";
+      function setPeriod(per) {
+        countPeriod = per;
+        document.getElementById("thursdayView").classList.toggle("period-month", per === "month");
+        document.getElementById("perThu").setAttribute("aria-pressed", per === "thu" ? "true" : "false");
+        document.getElementById("perMonth").setAttribute("aria-pressed", per === "month" ? "true" : "false");
+        document.getElementById("countModeLabel").textContent = per === "month" ? "Month-end inventory count" : "Thursday inventory count";
+        if (per === "month") renderMonth(); else renderCount();
+        syncCountBar();
+      }
+      document.getElementById("perThu").addEventListener("click", function () { setPeriod("thu"); });
+      document.getElementById("perMonth").addEventListener("click", function () { setPeriod("month"); });
+      document.getElementById("clearMonth").addEventListener("click", function () {
+        monthItems.forEach(function (it) {
+          it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null;
+          it.portions = null; it.each = null; it.bibs = null;
+        });
+        renderMonth();
+        toast("Month-end count cleared");
+      });
+
+      // ---- Receiving --------------------------------------------------------
+      // One receive row per product. Each row takes its units from the
+      // product's count row: the Thursday count row first, then the
+      // month-end rows (which cover the BIB syrups and the supplies). A
+      // product with no count row anywhere is received in cases. Receiving
+      // is independent: quantities are recorded only in this view — a
+      // session log plus a per-product received total — and never change
+      // the order guide or the counts. Session-only, like the counts.
+      var recvItems = [];
+      products.forEach(function (p) {
+        var spec = null, src = null, i;
+        for (i = 0; i < countItems.length; i++) {
+          if (countItems[i].order === p.name) { src = countItems[i]; break; }
+        }
+        if (src) {
+          spec = { kind: src.type === "hot" ? "hot" : "each", perBox: src.perBox, perSleeve: src.perSleeve, noSleeve: src.noSleeve };
+        } else {
+          src = null;
+          for (i = 0; i < monthItems.length; i++) {
+            if (monthItems[i].order === p.name) { src = monthItems[i]; break; }
+          }
+          if (src) {
+            if (src.kind === "bib") spec = { kind: "bib", gal: src.gal };
+            else if (src.kind === "supply") spec = { kind: "supply", perBox: src.perBox, perSleeve: src.perSleeve, divisor: src.divisor, portionsPer: src.portionsPer, convNote: src.convNote };
+            else spec = { kind: src.kind === "hot" ? "hot" : "each", perBox: src.perBox, perSleeve: src.perSleeve, noSleeve: src.noSleeve };
+          }
+        }
+        if (!spec) spec = { kind: "cases" };
+        recvItems.push({
+          pid: p.id, name: p.name, cat: p.cat, supplier: p.supplier, kind: spec.kind,
+          perBox: spec.perBox, perSleeve: spec.perSleeve, noSleeve: !!spec.noSleeve,
+          gal: spec.gal, divisor: spec.divisor || null, portionsPer: spec.portionsPer || null,
+          convNote: spec.convNote || null,
+          boxes: null, sleeves: null, stand: null, misc: null, portions: null, each: null, bibs: null, casesQty: null
+        });
+      });
+      var recvLog = [];
+
+      function findRecvItem(pid) {
+        for (var i = 0; i < recvItems.length; i++) if (recvItems[i].pid === pid) return recvItems[i];
+        return null;
+      }
+
+      // What a row's entered quantities are worth, in order-guide units
+      // (cases — or plain units for BIBs and case-received items), plus a
+      // plain-language description for the session log.
+      function recvCalc(r) {
+        var vals = [r.boxes, r.sleeves, r.stand, r.misc, r.portions, r.each, r.bibs, r.casesQty];
+        var any = vals.some(function (v) { return v !== null && v > 0; });
+        if (!any) return { entered: false, delta: 0, desc: "" };
+        if (r.kind === "bib") {
+          var b = r.bibs || 0;
+          return { entered: true, delta: b, desc: fmt(b) + (b === 1 ? " BIB" : " BIBs") + " (" + fmt(b * r.gal) + " gal)" };
+        }
+        if (r.kind === "cases") {
+          var cq = r.casesQty || 0;
+          return { entered: true, delta: cq, desc: fmt(cq) + (cq === 1 ? " case" : " cases") };
+        }
+        var parts = [], total, delta;
+        if (r.boxes) parts.push(fmt(r.boxes) + (r.boxes === 1 ? " box" : " boxes"));
+        if (r.sleeves) parts.push(fmt(r.sleeves) + (r.sleeves === 1 ? " sleeve" : " sleeves"));
+        if (r.kind === "hot") {
+          if (r.portions) parts.push(fmt(r.portions) + " portions");
+          total = (r.boxes || 0) * r.perBox + (r.sleeves || 0) * r.perSleeve + (r.portions || 0);
+          delta = total / r.perBox;
+        } else if (r.kind === "supply") {
+          if (r.each) parts.push(fmt(r.each) + " each");
+          total = (r.boxes || 0) * r.perBox + (r.sleeves || 0) * r.perSleeve + (r.each || 0);
+          delta = total / (r.divisor || r.perBox);
+        } else {
+          if (r.stand) parts.push(fmt(r.stand) + " stand");
+          if (r.misc) parts.push(fmt(r.misc) + " misc");
+          total = (r.boxes || 0) * r.perBox + (r.noSleeve ? 0 : (r.sleeves || 0) * r.perSleeve) + (r.stand || 0) + (r.misc || 0);
+          delta = total / r.perBox;
+        }
+        return { entered: true, delta: Math.round(delta * 100) / 100, desc: parts.join(" + ") };
+      }
+
+      function recvField(r, key, label) {
+        var id = "rcv-" + key + "-" + r.pid;
+        var v = r[key];
+        return '<div class="field"><label for="' + id + '">' + label + '</label>' +
+          '<div class="stepper sm"><button type="button" data-step="-1" data-for="' + id + '" aria-label="Decrease">−</button>' +
+          '<input id="' + id + '" data-field="' + key + '" type="number" inputmode="decimal" min="0" step="1" placeholder="0" value="' + (v === null ? "" : v) + '" />' +
+          '<button type="button" data-step="1" data-for="' + id + '" aria-label="Increase">+</button></div></div>';
+      }
+
+      // Total received for one product in this view this session, in the
+      // row's own units (cases, or BIBs for syrups).
+      function recvTotalFor(r) {
+        var t = 0;
+        recvLog.forEach(function (e) { if (e.pid === r.pid) t += e.delta; });
+        return Math.round(t * 100) / 100;
+      }
+
+      function recvRowHtml(r) {
+        var conv, fields, gridCls;
+        if (r.kind === "hot") {
+          conv = fmt(r.perBox) + " portions per case · " + fmt(r.perSleeve) + " per sleeve";
+          fields = recvField(r, "boxes", "Boxes received") + recvField(r, "sleeves", "Sleeves received") + recvField(r, "portions", "Portions received");
+          gridCls = "f3";
+        } else if (r.kind === "bib") {
+          conv = fmt(r.gal) + " gallons per BIB · whole BIBs only";
+          fields = recvField(r, "bibs", "Whole BIBs received");
+          gridCls = "f3";
+        } else if (r.kind === "supply") {
+          conv = "Per box " + fmt(r.perBox) + " · Per sleeve " + fmt(r.perSleeve) + (r.convNote ? " · " + esc(r.convNote) : "");
+          fields = recvField(r, "boxes", "Boxes received") + recvField(r, "sleeves", "Sleeves received") + recvField(r, "each", "Each received");
+          gridCls = "f3";
+        } else if (r.kind === "cases") {
+          conv = "No count-sheet row — received in cases";
+          fields = recvField(r, "casesQty", "Cases received");
+          gridCls = "f3";
+        } else if (r.noSleeve) {
+          conv = "Per box " + fmt(r.perBox);
+          fields = recvField(r, "boxes", "Boxes received") + recvField(r, "stand", "Stand (each)") + recvField(r, "misc", "Misc (each)");
+          gridCls = "f3";
+        } else {
+          conv = "Per box " + fmt(r.perBox) + " · Per sleeve " + fmt(r.perSleeve);
+          fields = recvField(r, "boxes", "Boxes received") + recvField(r, "sleeves", "Sleeves received") + recvField(r, "stand", "Stand (each)") + recvField(r, "misc", "Misc (each)");
+          gridCls = "f4";
+        }
+        var rTotal = recvTotalFor(r);
+        var rUnit = r.kind === "bib" ? "BIBs received" : "Cases received";
+        var rBadge = rTotal > 0
+          ? '<div class="need-badge"><span class="n">' + fmt(rTotal) + '</span><span class="l">' + rUnit + '</span></div>'
+          : '<div class="need-badge unset"><span class="n">None</span><span class="l">Received yet</span></div>';
+        return '<div class="row" data-rid="' + r.pid + '">' +
+          '<div class="row-top"><div><div class="pname">' + esc(r.name) + '</div>' +
+          '<div class="ptargets">' + conv + '</div></div>' + rBadge + '</div>' +
+          '<div class="cinputs ' + gridCls + '">' + fields + '</div>' +
+          '<div style="margin-top:10px;"><button type="button" class="btn primary sm add-recv">Record received</button></div></div>';
+      }
+
+      function renderRecv() {
+        var main = document.getElementById("recvCatalog");
+        var q = document.getElementById("recvSearch").value.trim().toLowerCase();
+        var html = "";
+        CATS.forEach(function (cat) {
+          var rows = recvItems.filter(function (r) {
+            return r.cat === cat.name && (!q || r.name.toLowerCase().indexOf(q) !== -1);
+          });
+          if (!rows.length) return;
+          html += '<section class="cat"><h2>' + esc(cat.name) +
+            (cat.supplier ? ' <span class="sup-tag">' + esc(cat.supplier) + '</span>' : '') +
+            ' <span class="count">' + rows.length + ' items</span></h2>';
+          rows.forEach(function (r) { html += recvRowHtml(r); });
+          html += "</section>";
+        });
+        if (!html) html = '<div class="empty">No products match that search.</div>';
+        main.innerHTML = html;
+        var rowEls = main.querySelectorAll(".row[data-rid]");
+        for (var i = 0; i < rowEls.length; i++) bindRecvRow(rowEls[i]);
+        updateRecvSummary();
+      }
+
+      function bindRecvRow(row) {
+        var r = findRecvItem(row.getAttribute("data-rid"));
+        var inputs = row.querySelectorAll("input[type=number]");
+        for (var i = 0; i < inputs.length; i++) {
+          inputs[i].addEventListener("input", function (e) {
+            var v = e.target.value === "" ? null : parseFloat(e.target.value);
+            if (v !== null && (isNaN(v) || v < 0)) v = null;
+            r[e.target.getAttribute("data-field")] = v;
+          });
+        }
+        var btns = row.querySelectorAll(".stepper button");
+        for (var j = 0; j < btns.length; j++) {
+          btns[j].addEventListener("click", function (e) {
+            var input = document.getElementById(e.currentTarget.getAttribute("data-for"));
+            var step = parseFloat(e.currentTarget.getAttribute("data-step"));
+            var cur = input.value === "" ? 0 : parseFloat(input.value);
+            if (isNaN(cur)) cur = 0;
+            input.value = Math.max(0, cur + step);
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+          });
+        }
+        row.querySelector(".add-recv").addEventListener("click", function () { addReceived(r); });
+      }
+
+      // Rebuild one receive row in place (clears its inputs and refreshes
+      // its received-total badge) after a receipt is recorded.
+      function refreshRecvRow(r) {
+        var row = document.querySelector('.row[data-rid="' + r.pid + '"]');
+        if (!row) return;
+        var fresh = document.createElement("div");
+        fresh.innerHTML = recvRowHtml(r);
+        var newRow = fresh.firstChild;
+        row.replaceWith(newRow);
+        bindRecvRow(newRow);
+      }
+
+      function addReceived(r) {
+        var c = recvCalc(r);
+        if (!c.entered) { toast("Enter a quantity for " + r.name + " first"); return; }
+        recvLog.unshift({ pid: r.pid, name: r.name, desc: c.desc, delta: c.delta, kind: r.kind, time: new Date() });
+        r.boxes = null; r.sleeves = null; r.stand = null; r.misc = null;
+        r.portions = null; r.each = null; r.bibs = null; r.casesQty = null;
+        refreshRecvRow(r);
+        renderRecvLog();
+        updateRecvSummary();
+        syncReceiveBar();
+        toast(r.name + " recorded — received total is now " + fmt(recvTotalFor(r)) + (r.kind === "bib" ? " BIBs" : " cases"));
+      }
+
+      function renderRecvLog() {
+        var wrap = document.getElementById("recvLogWrap");
+        var box = document.getElementById("recvLog");
+        wrap.classList.toggle("hidden", recvLog.length === 0);
+        box.innerHTML = recvLog.map(function (e) {
+          var detail = e.desc;
+          if (e.kind !== "bib" && e.kind !== "cases") detail += " = +" + fmt(e.delta) + " cases";
+          detail += " · " + e.time.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+          return '<div class="log-row"><div><div class="pname">' + esc(e.name) + '</div>' +
+            '<div class="ptargets">' + esc(detail) + '</div></div>' +
+            '<div class="need-badge"><span class="n">+' + fmt(e.delta) + '</span><span class="l">' + (e.kind === "bib" ? "BIBs in" : "Cases in") + '</span></div></div>';
+        }).join("");
+      }
+
+      function updateRecvSummary() {
+        var seen = {};
+        recvLog.forEach(function (e) { seen[e.name] = true; });
+        document.getElementById("rcvCount").textContent = recvLog.length;
+        document.getElementById("rcvItems").textContent = Object.keys(seen).length;
+      }
+
+      // The bottom bar follows the receive view while it's on screen.
+      function syncReceiveBar() {
+        if (currentView() !== "receive") return;
+        document.getElementById("barTotal").textContent = recvLog.length
+          ? recvLog.length + (recvLog.length === 1 ? " receipt" : " receipts") + " this session"
+          : "Nothing received yet";
+        document.getElementById("barSub").textContent = "Receipts are recorded on this page only";
+      }
+
+      document.getElementById("tabReceive").addEventListener("click", function () { setView("receive"); });
+      document.getElementById("recvSearch").addEventListener("input", renderRecv);
+
+      // ---- View switching --------------------------------------------------
+      function currentView() {
+        if (document.body.classList.contains("show-thursday")) return "thursday";
+        if (document.body.classList.contains("show-receive")) return "receive";
+        if (document.body.classList.contains("show-order")) return "order";
+        return "guide";
+      }
+      function setView(v) {
+        document.body.classList.toggle("show-order", v === "order");
+        document.body.classList.toggle("show-thursday", v === "thursday");
+        document.body.classList.toggle("show-receive", v === "receive");
+        document.getElementById("tabGuide").setAttribute("aria-pressed", (v === "guide" || v === "order") ? "true" : "false");
+        document.getElementById("tabCount").setAttribute("aria-pressed", v === "thursday" ? "true" : "false");
+        document.getElementById("tabReceive").setAttribute("aria-pressed", v === "receive" ? "true" : "false");
+        document.getElementById("viewOrderBtn").textContent = v === "order" ? "Back to counting" : "View order";
+        if (v === "order") renderOrder();
+        if (v === "receive") { renderRecv(); renderRecvLog(); }
+        updateSummary();
+        updateCountProgress();
+        updateMonthProgress();
+        syncReceiveBar();
+        window.scrollTo(0, 0);
+      }
+
+      document.getElementById("countSearch").addEventListener("input", function () {
+        if (countPeriod === "month") renderMonth(); else renderCount();
+      });
+      document.getElementById("clearCount").addEventListener("click", function () {
+        countItems.forEach(function (it) {
+          it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null; it.portions = null;
+        });
+        renderCount();
+        toast("Thursday count cleared");
+      });
+
+      render();
+      renderCount();
+      renderMonth();
+      renderRecv();
+    </script>
+    <script>
+      // Installable-app plumbing: register the offline service worker so
+      // Chrome can offer "Install app" / "Add to Home screen" and the
+      // tracker keeps working with no connection. The worker lives at the
+      // app root, next to this page, so its default scope covers the
+      // whole app — including this page.
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("sw.js")
+            .catch(function () { /* page still works without the worker */ });
+        });
+      }
+    </script>
+  </body>
+</html>
