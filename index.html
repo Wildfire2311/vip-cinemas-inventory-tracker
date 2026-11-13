@@ -344,6 +344,24 @@
       }
       .tabs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); box-shadow: var(--shadow); }
 
+      /* Supplier selector tabs (Order guide + Receive) */
+      .sup-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 2px; }
+      .sup-tabs button {
+        flex: 1 1 auto;
+        border: 1px solid var(--line); border-radius: 999px;
+        background: var(--surface); color: var(--ink-soft);
+        font-family: "Barlow Condensed", sans-serif; font-size: 19px; font-weight: 600;
+        letter-spacing: .04em; min-height: 44px; padding: 6px 14px; cursor: pointer;
+      }
+      .sup-tabs button[aria-pressed="true"] {
+        background: var(--accent); border-color: var(--accent);
+        color: var(--accent-ink); box-shadow: var(--shadow);
+      }
+      .sup-info { font-size: 14px; color: var(--ink-soft); margin: 4px 0 8px; }
+      .sup-info b { color: var(--ink); }
+      #countView .stepper button, #countView .stepper input { scroll-margin-top: 300px; }
+      #receiveView .stepper button, #receiveView .stepper input { scroll-margin-top: 250px; }
+
       /* Thursday count view */
       #thursdayView { display: none; }
       body.show-thursday #thursdayView { display: block; }
@@ -473,6 +491,9 @@
 
       <div id="countView">
         <div class="sticky">
+          <div class="mode-label">Supplier — order guide</div>
+          <div class="sup-tabs" id="guideSupTabs" role="group" aria-label="Supplier"></div>
+          <p class="sup-info" id="guideSupInfo"></p>
           <div class="mode-label">Stocking for a…</div>
           <div class="modes" role="group" aria-label="Stocking mode">
             <button type="button" data-mode="busy" aria-pressed="false">Busy</button>
@@ -552,6 +573,9 @@
       <div id="receiveView">
         <div class="sticky">
           <div class="mode-label">Receiving — deliveries into stock</div>
+          <div class="mode-label" style="margin-top:2px;">Supplier</div>
+          <div class="sup-tabs" id="recvSupTabs" role="group" aria-label="Supplier"></div>
+          <p class="sup-info" id="recvSupInfo"></p>
           <div class="summary">
             <span class="chip"><strong id="rcvCount">0</strong> receipts this session</span>
             <span class="chip"><strong id="rcvItems">0</strong> products restocked</span>
@@ -675,8 +699,49 @@
       var SUPPLIER_INFO = {
         "Vistar": "Place the order at customerfirstsolutions.com",
         "ICEE": "Monthly order — email servicecall@icee.com and cc Josh; provide our address when asked",
-        "Pepsi": "Input all information on the Pepsi Portal"
+        "Pepsi": "Input all information on the Pepsi Portal",
+        "Walmart": "Order from Walmart, not Vistar"
       };
+      var SUPPLIER_ORDER = ["Vistar", "ICEE", "Pepsi", "Walmart", "Other"];
+      var guideSupplier = "Vistar";
+      var recvSupplier = "Vistar";
+
+      // A product's supplier: a per-product supplier (e.g. Hot Dog Buns
+      // from Walmart) wins over its category's supplier.
+      function effSupplier(p) {
+        return (p.opts && p.opts.supplier) || p.supplier || "Other";
+      }
+
+      // Build the supplier tab row for one view: only suppliers that
+      // actually have items in that view, in the fixed order.
+      function supTabsHtml(present, selected) {
+        return SUPPLIER_ORDER.filter(function (s) { return present[s]; }).map(function (s) {
+          return '<button type="button" data-sup="' + esc(s) + '" aria-pressed="' +
+            (s === selected ? "true" : "false") + '">' + esc(s) + '</button>';
+        }).join("");
+      }
+
+      function renderGuideSupTabs() {
+        var present = {};
+        products.forEach(function (p) { present[effSupplier(p)] = true; });
+        if (!present[guideSupplier]) {
+          guideSupplier = SUPPLIER_ORDER.filter(function (s) { return present[s]; })[0];
+        }
+        var box = document.getElementById("guideSupTabs");
+        box.innerHTML = supTabsHtml(present, guideSupplier);
+        var btns = box.querySelectorAll("button");
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].addEventListener("click", function (e) {
+            guideSupplier = e.currentTarget.getAttribute("data-sup");
+            render();
+            window.scrollTo(0, 0);
+          });
+        }
+        var info = document.getElementById("guideSupInfo");
+        var text = SUPPLIER_INFO[guideSupplier] || "";
+        info.innerHTML = text ? "<b>" + esc(guideSupplier) + ":</b> " + esc(text) : "";
+        info.classList.toggle("hidden", !text);
+      }
 
       function fmt(n) {
         if (n === null || n === undefined) return "—";
@@ -707,12 +772,14 @@
       }
 
       function render() {
+        renderGuideSupTabs();
         var main = document.getElementById("catalog");
         var q = document.getElementById("search").value.trim().toLowerCase();
         var html = "";
         CATS.forEach(function (cat) {
           var rows = products.filter(function (p) {
-            return p.cat === cat.name && (!q || p.name.toLowerCase().indexOf(q) !== -1);
+            return p.cat === cat.name && effSupplier(p) === guideSupplier &&
+              (!q || p.name.toLowerCase().indexOf(q) !== -1);
           });
           if (!rows.length) return;
           html += '<section class="cat"><h2>' + esc(cat.name) +
@@ -820,7 +887,7 @@
       }
 
       function orderItems() {
-        return products.map(function (p) {
+        return products.filter(function (p) { return effSupplier(p) === guideSupplier; }).map(function (p) {
           var c = calc(p);
           return { p: p, c: c };
         }).filter(function (x) { return x.c.status === "ok" && x.c.need > 0; });
@@ -828,11 +895,12 @@
 
       function updateSummary() {
         var items = orderItems();
-        var counted = products.filter(function (p) { return p.have !== null; }).length;
-        var unset = products.filter(function (p) { return calc(p).status === "unset"; }).length;
+        var scope = products.filter(function (p) { return effSupplier(p) === guideSupplier; });
+        var counted = scope.filter(function (p) { return p.have !== null; }).length;
+        var unset = scope.filter(function (p) { return calc(p).status === "unset"; }).length;
         document.getElementById("sumNeed").textContent = items.length;
         document.getElementById("sumCounted").textContent = counted;
-        document.getElementById("sumTotal").textContent = products.length;
+        document.getElementById("sumTotal").textContent = scope.length;
         document.getElementById("sumUnset").classList.toggle("hidden", unset === 0);
         document.getElementById("sumUnsetN").textContent = unset;
         if (currentView() !== "thursday" && currentView() !== "receive") {
@@ -851,7 +919,7 @@
         var body = document.getElementById("orderBody");
         var now = new Date();
         document.getElementById("orderMeta").textContent =
-          "VIP Cinemas · Stocking for: " + MODES[state.mode] + " · " +
+          "VIP Cinemas · " + guideSupplier + " order · Stocking for: " + MODES[state.mode] + " · " +
           now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
         if (!items.length) {
           body.innerHTML = '<div class="empty">Nothing needs ordering at the ' + MODES[state.mode] +
@@ -860,12 +928,12 @@
         }
         var html = "";
         var suppliers = [];
-        items.forEach(function (x) { if (suppliers.indexOf(x.p.supplier) === -1) suppliers.push(x.p.supplier); });
+        items.forEach(function (x) { if (suppliers.indexOf(effSupplier(x.p)) === -1) suppliers.push(effSupplier(x.p)); });
         suppliers.forEach(function (sup) {
           html += '<div class="order-sup">' + esc(sup) + ' order</div>' +
             '<p class="order-sup-note">' + esc(SUPPLIER_INFO[sup] || "") + '</p>';
           CATS.forEach(function (cat) {
-            var rows = items.filter(function (x) { return x.p.cat === cat.name && x.p.supplier === sup; });
+            var rows = items.filter(function (x) { return x.p.cat === cat.name && effSupplier(x.p) === sup; });
             if (!rows.length) return;
             html += '<div class="order-cat">' + esc(cat.name) + '</div><table class="order">';
             rows.forEach(function (x) {
@@ -875,7 +943,7 @@
             html += "</table>";
           });
         });
-        var held = products.filter(function (p) { return calc(p).status === "hold"; });
+        var held = products.filter(function (p) { return calc(p).status === "hold" && effSupplier(p) === guideSupplier; });
         if (held.length) {
           html += '<div class="note warn" style="margin-top:16px;">Held off this order: ' +
             held.map(function (p) { return esc(p.name); }).join(", ") +
@@ -887,11 +955,11 @@
       function orderText() {
         var items = orderItems();
         var suppliers = [];
-        items.forEach(function (x) { if (suppliers.indexOf(x.p.supplier) === -1) suppliers.push(x.p.supplier); });
+        items.forEach(function (x) { if (suppliers.indexOf(effSupplier(x.p)) === -1) suppliers.push(effSupplier(x.p)); });
         var blocks = suppliers.map(function (sup) {
           var lines = ["VIP CINEMAS — " + sup.toUpperCase() + " ORDER", "Stocking for: " + MODES[state.mode], ""];
           var lastCat = "";
-          items.filter(function (x) { return x.p.supplier === sup; }).forEach(function (x) {
+          items.filter(function (x) { return effSupplier(x.p) === sup; }).forEach(function (x) {
             if (x.p.cat !== lastCat) { lastCat = x.p.cat; lines.push(lastCat.toUpperCase()); }
             lines.push("  " + x.p.name + " — " + fmt(x.c.need) + (x.c.cases ? " (" + x.c.cases + " cases × 4)" : ""));
           });
@@ -1444,7 +1512,7 @@
         }
         if (!spec) spec = { kind: "cases" };
         recvItems.push({
-          pid: p.id, name: p.name, cat: p.cat, supplier: p.supplier, kind: spec.kind,
+          pid: p.id, name: p.name, cat: p.cat, supplier: (p.opts && p.opts.supplier) || p.supplier, kind: spec.kind,
           perBox: spec.perBox, perSleeve: spec.perSleeve, noSleeve: !!spec.noSleeve,
           gal: spec.gal, divisor: spec.divisor || null, portionsPer: spec.portionsPer || null,
           convNote: spec.convNote || null,
@@ -1549,13 +1617,37 @@
           '<div style="margin-top:10px;"><button type="button" class="btn primary sm add-recv">Record received</button></div></div>';
       }
 
+      function renderRecvSupTabs() {
+        var present = {};
+        recvItems.forEach(function (r) { present[r.supplier || "Other"] = true; });
+        if (!present[recvSupplier]) {
+          recvSupplier = SUPPLIER_ORDER.filter(function (s) { return present[s]; })[0];
+        }
+        var box = document.getElementById("recvSupTabs");
+        box.innerHTML = supTabsHtml(present, recvSupplier);
+        var btns = box.querySelectorAll("button");
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].addEventListener("click", function (e) {
+            recvSupplier = e.currentTarget.getAttribute("data-sup");
+            renderRecv();
+            window.scrollTo(0, 0);
+          });
+        }
+        var info = document.getElementById("recvSupInfo");
+        var text = SUPPLIER_INFO[recvSupplier] || "";
+        info.innerHTML = text ? "<b>" + esc(recvSupplier) + ":</b> " + esc(text) : "";
+        info.classList.toggle("hidden", !text);
+      }
+
       function renderRecv() {
+        renderRecvSupTabs();
         var main = document.getElementById("recvCatalog");
         var q = document.getElementById("recvSearch").value.trim().toLowerCase();
         var html = "";
         CATS.forEach(function (cat) {
           var rows = recvItems.filter(function (r) {
-            return r.cat === cat.name && (!q || r.name.toLowerCase().indexOf(q) !== -1);
+            return r.cat === cat.name && (r.supplier || "Other") === recvSupplier &&
+              (!q || r.name.toLowerCase().indexOf(q) !== -1);
           });
           if (!rows.length) return;
           html += '<section class="cat"><h2>' + esc(cat.name) +
