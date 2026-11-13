@@ -476,6 +476,27 @@
         max-width: 90vw; text-align: center;
       }
       .toast.show { opacity: 1; }
+      .confirm-overlay {
+        position: fixed; inset: 0; z-index: 60;
+        background: rgba(20, 8, 40, .55);
+        display: flex; align-items: center; justify-content: center;
+        padding: 20px;
+      }
+      .confirm-box {
+        background: var(--surface); color: var(--ink);
+        border: 1px solid var(--line); border-radius: 14px;
+        padding: 20px; max-width: 420px; width: 100%;
+        box-shadow: 0 10px 32px rgba(0,0,0,.28);
+      }
+      .confirm-box h2 {
+        font-family: "Barlow Condensed", sans-serif; font-size: 26px;
+        text-transform: uppercase; margin: 0 0 8px; line-height: 1.1;
+      }
+      .confirm-box p { margin: 0; font-size: 16px; color: var(--ink-soft); }
+      .confirm-box p b { color: var(--ink); }
+      .confirm-actions { display: flex; gap: 8px; margin-top: 18px; }
+      .confirm-actions .btn { flex: 1; }
+      .btn.danger { background: #b42318; color: #ffffff; }
       .hidden { display: none !important; }
       @media (min-width: 560px) {
         .inputs { grid-template-columns: 1fr; }
@@ -530,7 +551,7 @@
             <button type="button" data-mode="slow" aria-pressed="false">Slow</button>
           </div>
           <div class="summary">
-            <span class="chip"><strong id="sumNeed">0</strong> items to order</span>
+            <span class="chip"><strong id="sumNeed">0</strong> <span id="sumNeedLabel">items to order</span></span>
             <span class="chip"><strong id="sumCounted">0</strong> of <span id="sumTotal">98</span> counted</span>
             <span class="chip hidden" id="sumUnset"><strong id="sumUnsetN">0</strong> need admin setup</span>
           </div>
@@ -597,8 +618,8 @@
           <div class="sup-tabs" id="recvSupTabs" role="group" aria-label="Supplier"></div>
           <p class="sup-info" id="recvSupInfo"></p>
           <div class="summary">
-            <span class="chip"><strong id="rcvCount">0</strong> receipts recorded</span>
-            <span class="chip"><strong id="rcvItems">0</strong> products restocked</span>
+            <span class="chip"><strong id="rcvCount">0</strong> <span id="rcvCountLabel">receipts recorded</span></span>
+            <span class="chip"><strong id="rcvItems">0</strong> <span id="rcvItemsLabel">products restocked</span></span>
           </div>
           <input class="search" id="recvSearch" type="search" placeholder="Search products…" aria-label="Search products to receive" />
         </div>
@@ -662,6 +683,17 @@
       </div>
     </div>
     <div class="toast" id="toast" role="status"></div>
+
+    <div class="confirm-overlay hidden" id="confirmOverlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMsg">
+      <div class="confirm-box">
+        <h2 id="confirmTitle">Are you sure?</h2>
+        <p id="confirmMsg"></p>
+        <div class="confirm-actions">
+          <button type="button" class="btn ghost" id="confirmCancel">Cancel</button>
+          <button type="button" class="btn danger" id="confirmYes">Clear it</button>
+        </div>
+      </div>
+    </div>
 
     <script>
       // Catalog — names, categories and Busy/Average/Slow targets exactly as
@@ -800,7 +832,10 @@
             receivedChecked: receivedChecked,
             orderChecked: orderChecked
           };
-          products.forEach(function (p) { if (p.have !== null) data.have[p.id] = p.have; });
+          // A Have of 0 is "not counted", so it is never persisted: an
+          // item stepped back to 0 (Lou Ana Topping Butter included)
+          // must come back un-counted, not carrying a stored 0.
+          products.forEach(function (p) { if (p.have !== null && p.have > 0) data.have[p.id] = p.have; });
           countItems.forEach(function (it) {
             var e = {};
             ["boxes", "sleeves", "stand", "misc", "portions"].forEach(function (k) {
@@ -844,7 +879,9 @@
           products.forEach(function (p) {
             if (Object.prototype.hasOwnProperty.call(data.have, p.id)) {
               var v = data.have[p.id];
-              p.have = (typeof v === "number" && !isNaN(v) && v >= 0) ? v : null;
+              // Only a Have greater than 0 restores as a count; a 0
+              // saved by an older version is dropped, not restored.
+              p.have = (typeof v === "number" && !isNaN(v) && v > 0) ? v : null;
             }
           });
         }
@@ -939,6 +976,42 @@
         return (Math.round(n * 100) / 100).toString();
       }
 
+      // Singular when the count is exactly 1, plural otherwise:
+      // "1 item" / "2 items", "1 receipt" / "2 receipts", "1 case" / "2 cases".
+      function pluralWord(n, singular) { return n === 1 ? singular : singular + "s"; }
+      function itemWord(n) { return pluralWord(n, "item"); }
+      function caseWord(n) { return pluralWord(n, "case"); }
+      function unitWord(n) { return pluralWord(n, "unit"); }
+      // "a busy period", "an average period", "a slow period".
+      function modeArticle() { return state.mode === "average" ? "an" : "a"; }
+
+      // ---- Clear confirmation -------------------------------------------
+      // Clearing wipes a whole sheet, so it never happens on a single
+      // tap: the clear buttons open this in-page prompt naming exactly
+      // what will be cleared, and only the "Clear it" button in the
+      // prompt runs the clear.
+      var pendingClear = null;
+      function askClear(title, messageHtml, action) {
+        pendingClear = action;
+        document.getElementById("confirmTitle").textContent = title;
+        document.getElementById("confirmMsg").innerHTML = messageHtml;
+        document.getElementById("confirmOverlay").classList.remove("hidden");
+        document.getElementById("confirmCancel").focus();
+      }
+      function closeConfirm() {
+        pendingClear = null;
+        document.getElementById("confirmOverlay").classList.add("hidden");
+      }
+      document.getElementById("confirmCancel").addEventListener("click", closeConfirm);
+      document.getElementById("confirmOverlay").addEventListener("click", function (e) {
+        if (e.target === e.currentTarget) closeConfirm();
+      });
+      document.getElementById("confirmYes").addEventListener("click", function () {
+        var action = pendingClear;
+        closeConfirm();
+        if (action) action();
+      });
+
       // Core calculation for one product under the current settings.
       // Returns {status: 'ok'|'unset', need, cases}
       function calc(p) {
@@ -977,7 +1050,7 @@
           if (!rows.length) return;
           html += '<section class="cat"><h2>' + esc(cat.name) +
             (cat.supplier ? ' <span class="sup-tag">' + esc(cat.supplier) + '</span>' : '') +
-            ' <span class="count">' + rows.length + ' items</span></h2>' +
+            ' <span class="count">' + rows.length + ' ' + itemWord(rows.length) + '</span></h2>' +
             (cat.note ? '<p class="cat-note">' + esc(cat.note) + '</p>' : '');
           rows.forEach(function (p) { html += rowHtml(p); });
           html += "</section>";
@@ -1080,9 +1153,12 @@
       function updateSummary() {
         var items = orderItems();
         var scope = products.filter(function (p) { return effSupplier(p) === guideSupplier; });
-        var counted = scope.filter(function (p) { return p.have !== null; }).length;
+        // Counted means a Have greater than 0 was entered: a stored or
+        // stepped-to 0 is not a count, and stepping back to 0 un-counts.
+        var counted = scope.filter(function (p) { return p.have !== null && p.have > 0; }).length;
         var unset = scope.filter(function (p) { return calc(p).status === "unset"; }).length;
         document.getElementById("sumNeed").textContent = items.length;
+        document.getElementById("sumNeedLabel").textContent = itemWord(items.length) + " to order";
         document.getElementById("sumCounted").textContent = counted;
         document.getElementById("sumTotal").textContent = scope.length;
         document.getElementById("sumUnset").classList.toggle("hidden", unset === 0);
@@ -1091,10 +1167,10 @@
         if (cv0 === "guide" || cv0 === "order") {
           var totalUnits = items.reduce(function (s, x) { return s + x.c.need; }, 0);
           document.getElementById("barTotal").textContent = items.length
-            ? items.length + " items · " + fmt(totalUnits) + " units to order"
+            ? items.length + " " + itemWord(items.length) + " · " + fmt(totalUnits) + " " + unitWord(totalUnits) + " to order"
             : "Nothing to order yet";
           document.getElementById("barSub").textContent = items.length
-            ? "Stocking for a " + modeLabel().toLowerCase() + " period"
+            ? "Stocking for " + modeArticle() + " " + modeLabel().toLowerCase() + " period"
             : "Enter counts to build the order";
         }
       }
@@ -1148,7 +1224,7 @@
           var lastCat = "";
           items.filter(function (x) { return effSupplier(x.p) === sup; }).forEach(function (x) {
             if (x.p.cat !== lastCat) { lastCat = x.p.cat; lines.push(lastCat.toUpperCase()); }
-            lines.push("  " + x.p.name + " — " + fmt(x.c.need) + (x.c.cases ? " (" + x.c.cases + " cases × " + x.p.opts.caseSize + ")" : ""));
+            lines.push("  " + x.p.name + " — " + fmt(x.c.need) + (x.c.cases ? " (" + x.c.cases + " " + caseWord(x.c.cases) + " × " + x.p.opts.caseSize + ")" : ""));
           });
           return lines.join("\n");
         });
@@ -1184,11 +1260,13 @@
 
       document.getElementById("search").addEventListener("input", render);
       document.getElementById("clearAll").addEventListener("click", function () {
-        products.forEach(function (p) { p.have = null; });
-        Object.keys(orderChecked).forEach(function (k) { delete orderChecked[k]; });
-        saveState();
-        render();
-        toast("All counts cleared");
+        askClear("Clear all counts?", "This will clear <b>all counts</b> — every Have on hand entry in the order guide, for every supplier — and undo the order list's check-offs. This can't be undone.", function () {
+          products.forEach(function (p) { p.have = null; });
+          Object.keys(orderChecked).forEach(function (k) { delete orderChecked[k]; });
+          saveState();
+          render();
+          toast("All counts cleared");
+        });
       });
       document.getElementById("viewOrderBtn").addEventListener("click", function () {
         var cv = currentView();
@@ -1293,7 +1371,10 @@
       // Total in the sheet's units (eaches, or portions for hot food) and the
       // same total converted to cases, shown in this view for reference.
       function countCalc(it) {
-        var entered = [it.boxes, it.sleeves, it.stand, it.misc, it.portions].some(function (v) { return v !== null; });
+        // Same rule as the order guide: only a value greater than 0
+        // counts as counted — entering or stepping back to all zeros
+        // leaves the row un-counted.
+        var entered = [it.boxes, it.sleeves, it.stand, it.misc, it.portions].some(function (v) { return v !== null && v > 0; });
         if (!entered) return { counted: false, total: 0, cases: 0 };
         var total;
         if (it.type === "hot") {
@@ -1351,7 +1432,7 @@
         if (c.counted) {
           total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " " + unit + "</b>" +
             (it.order
-              ? " = <b>" + fmt(c.cases) + " cases</b> (converted, for reference)."
+              ? " = <b>" + fmt(c.cases) + " " + caseWord(c.cases) + "</b> (converted, for reference)."
               : " — count only, no order target.") + "</div>";
         }
         return '<div class="row' + (c.counted ? "" : " uncounted") + '" data-cid="' + it.id + '">' +
@@ -1371,7 +1452,7 @@
           });
           if (!rows.length) return;
           html += '<section class="cat"><h2>' + esc(cat.name) +
-            ' <span class="count">' + rows.length + ' items</span></h2>' +
+            ' <span class="count">' + rows.length + ' ' + itemWord(rows.length) + '</span></h2>' +
             '<p class="cat-note">' + esc(cat.note) + '</p>';
           rows.forEach(function (it) { html += countRowHtml(it); });
           html += "</section>";
@@ -1512,11 +1593,11 @@
 
       function monthCalc(it) {
         if (it.kind === "bib") {
-          if (it.bibs === null) return { counted: false, total: 0, have: 0 };
+          if (it.bibs === null || !(it.bibs > 0)) return { counted: false, total: 0, have: 0 };
           return { counted: true, total: it.bibs, gallons: it.bibs * it.gal, have: it.bibs };
         }
         if (it.kind === "supply") {
-          if (it.boxes === null && it.sleeves === null && it.each === null) return { counted: false, total: 0, have: 0 };
+          if (![it.boxes, it.sleeves, it.each].some(function (v) { return v !== null && v > 0; })) return { counted: false, total: 0, have: 0 };
           var total = (it.boxes || 0) * it.perBox + (it.sleeves || 0) * it.perSleeve + (it.each || 0);
           var cases = total / (it.divisor || it.perBox);
           return { counted: true, total: total, cases: cases, have: cases };
@@ -1556,7 +1637,7 @@
           if (c.counted) {
             total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " eaches</b>" +
               (it.portionsPer ? " (" + fmt(c.total * it.portionsPer) + " portions)" : "") +
-              " = <b>" + fmt(c.cases) + " cases</b>" +
+              " = <b>" + fmt(c.cases) + " " + caseWord(c.cases) + "</b>" +
               (it.order ? " (converted, for reference)." : " — count only, no order target.") + "</div>";
           }
         } else if (it.kind === "hot") {
@@ -1564,7 +1645,7 @@
           fields = countField(it, "boxes", "Boxes on hand") + countField(it, "sleeves", "Sleeves on hand") + countField(it, "portions", "Portions on hand");
           gridCls = "f3";
           if (c.counted) {
-            total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " portions</b> = <b>" + fmt(c.cases) + " cases</b>" +
+            total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " portions</b> = <b>" + fmt(c.cases) + " " + caseWord(c.cases) + "</b>" +
               (it.order ? " (converted, for reference)." : " — count only, no order target.") + "</div>";
           }
         } else {
@@ -1578,7 +1659,7 @@
             gridCls = "f4";
           }
           if (c.counted) {
-            total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " eaches</b> = <b>" + fmt(c.cases) + " cases</b>" +
+            total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " eaches</b> = <b>" + fmt(c.cases) + " " + caseWord(c.cases) + "</b>" +
               (it.order ? " (converted, for reference)." : " — count only, no order target.") + "</div>";
           }
         }
@@ -1599,7 +1680,7 @@
           });
           if (!rows.length) return;
           html += '<section class="cat"><h2>' + esc(cat.name) +
-            ' <span class="count">' + rows.length + ' items</span></h2>' +
+            ' <span class="count">' + rows.length + ' ' + itemWord(rows.length) + '</span></h2>' +
             '<p class="cat-note">' + esc(cat.note) + '</p>';
           rows.forEach(function (it) { html += monthRowHtml(it); });
           html += "</section>";
@@ -1680,14 +1761,16 @@
       document.getElementById("perThu").addEventListener("click", function () { setPeriod("thu"); });
       document.getElementById("perMonth").addEventListener("click", function () { setPeriod("month"); });
       document.getElementById("clearMonth").addEventListener("click", function () {
-        monthItems.forEach(function (it) {
-          it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null;
-          it.portions = null; it.each = null; it.bibs = null;
-          if (typeof countsChecked !== "undefined") delete countsChecked[it.id];
+        askClear("Clear month-end count?", "This will clear the <b>month-end count</b> — all 97 rows of the sellable and non-sellable count. This can't be undone.", function () {
+          monthItems.forEach(function (it) {
+            it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null;
+            it.portions = null; it.each = null; it.bibs = null;
+            if (typeof countsChecked !== "undefined") delete countsChecked[it.id];
+          });
+          saveState();
+          renderMonth();
+          toast("Month-end count cleared");
         });
-        saveState();
-        renderMonth();
-        toast("Month-end count cleared");
       });
 
       // ---- Receiving --------------------------------------------------------
@@ -1861,7 +1944,7 @@
           if (!rows.length) return;
           html += '<section class="cat"><h2>' + esc(cat.name) +
             (cat.supplier ? ' <span class="sup-tag">' + esc(cat.supplier) + '</span>' : '') +
-            ' <span class="count">' + rows.length + ' items</span></h2>';
+            ' <span class="count">' + rows.length + ' ' + itemWord(rows.length) + '</span></h2>';
           rows.forEach(function (r) { html += recvRowHtml(r); });
           html += "</section>";
         });
@@ -1920,7 +2003,7 @@
         renderRecvLog();
         updateRecvSummary();
         syncReceiveBar();
-        toast(r.name + " recorded — received total is now " + fmt(recvTotalFor(r)) + (r.kind === "bib" ? " BIBs" : " cases"));
+        toast(r.name + " recorded — received total is now " + fmt(recvTotalFor(r)) + (r.kind === "bib" ? (recvTotalFor(r) === 1 ? " BIB" : " BIBs") : (recvTotalFor(r) === 1 ? " case" : " cases")));
       }
 
       function renderRecvLog() {
@@ -1929,7 +2012,7 @@
         wrap.classList.toggle("hidden", recvLog.length === 0);
         box.innerHTML = recvLog.map(function (e) {
           var detail = e.desc;
-          if (e.kind !== "bib" && e.kind !== "cases") detail += " = +" + fmt(e.delta) + " cases";
+          if (e.kind !== "bib" && e.kind !== "cases") detail += " = +" + fmt(e.delta) + " " + caseWord(e.delta);
           detail += " · " + e.time.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
           return '<div class="log-row"><div><div class="pname">' + esc(e.name) + '</div>' +
             '<div class="ptargets">' + esc(detail) + '</div></div>' +
@@ -1940,8 +2023,11 @@
       function updateRecvSummary() {
         var seen = {};
         recvLog.forEach(function (e) { seen[e.name] = true; });
+        var productCount = Object.keys(seen).length;
         document.getElementById("rcvCount").textContent = recvLog.length;
-        document.getElementById("rcvItems").textContent = Object.keys(seen).length;
+        document.getElementById("rcvCountLabel").textContent = pluralWord(recvLog.length, "receipt") + " recorded";
+        document.getElementById("rcvItems").textContent = productCount;
+        document.getElementById("rcvItemsLabel").textContent = pluralWord(productCount, "product") + " restocked";
       }
 
       // The bottom bar follows the receive view while it's on screen.
@@ -1957,18 +2043,20 @@
       document.getElementById("tabReceive").addEventListener("click", function () { setView("receive"); });
       document.getElementById("recvSearch").addEventListener("input", renderRecv);
       document.getElementById("clearRecv").addEventListener("click", function () {
-        recvLog = [];
-        recvItems.forEach(function (r) {
-          r.boxes = null; r.sleeves = null; r.stand = null; r.misc = null;
-          r.portions = null; r.each = null; r.bibs = null; r.casesQty = null;
+        askClear("Clear received records?", "This will clear the <b>received records</b> — the received log and every product's received total saved on this device. This can't be undone.", function () {
+          recvLog = [];
+          recvItems.forEach(function (r) {
+            r.boxes = null; r.sleeves = null; r.stand = null; r.misc = null;
+            r.portions = null; r.each = null; r.bibs = null; r.casesQty = null;
+          });
+          Object.keys(receivedChecked).forEach(function (k) { delete receivedChecked[k]; });
+          saveState();
+          renderRecv();
+          renderRecvLog();
+          updateRecvSummary();
+          syncReceiveBar();
+          toast("Received records cleared");
         });
-        Object.keys(receivedChecked).forEach(function (k) { delete receivedChecked[k]; });
-        saveState();
-        renderRecv();
-        renderRecvLog();
-        updateRecvSummary();
-        syncReceiveBar();
-        toast("Received records cleared");
       });
 
       // ---- Check-off state (saved on this device with everything else) ----
@@ -2022,8 +2110,8 @@
               var c = monthCalc(it);
               var qty, sub;
               if (it.kind === "bib") { qty = fmt(c.total); sub = (c.total === 1 ? "BIB" : "BIBs") + " · " + fmt(c.gallons) + " gal"; }
-              else if (it.kind === "hot") { qty = fmt(c.total); sub = "portions · " + fmt(c.cases) + " cases"; }
-              else { qty = fmt(c.total); sub = "eaches · " + fmt(c.cases) + " cases"; }
+              else if (it.kind === "hot") { qty = fmt(c.total); sub = "portions · " + fmt(c.cases) + " " + caseWord(c.cases); }
+              else { qty = fmt(c.total); sub = "eaches · " + fmt(c.cases) + " " + caseWord(c.cases); }
               html += checkRowHtml(it.id, it.name, qty, sub, countsChecked);
             });
             html += "</div>";
@@ -2041,7 +2129,7 @@
             rows.forEach(function (it) {
               var c = countCalc(it);
               var unit = it.type === "hot" ? "portions" : "eaches";
-              html += checkRowHtml(it.id, it.name, fmt(c.total), unit + " · " + fmt(c.cases) + " cases", countsChecked);
+              html += checkRowHtml(it.id, it.name, fmt(c.total), unit + " · " + fmt(c.cases) + " " + caseWord(c.cases), countsChecked);
             });
             html += "</div>";
           });
@@ -2060,9 +2148,9 @@
             lines.push(cat.name.toUpperCase());
             rows.forEach(function (it) {
               var c = monthCalc(it);
-              if (it.kind === "bib") lines.push("  " + it.name + " — " + fmt(c.total) + " BIBs (" + fmt(c.gallons) + " gal)");
-              else if (it.kind === "hot") lines.push("  " + it.name + " — " + fmt(c.total) + " portions (" + fmt(c.cases) + " cases)");
-              else lines.push("  " + it.name + " — " + fmt(c.total) + " eaches (" + fmt(c.cases) + " cases)");
+              if (it.kind === "bib") lines.push("  " + it.name + " — " + fmt(c.total) + (c.total === 1 ? " BIB" : " BIBs") + " (" + fmt(c.gallons) + " gal)");
+              else if (it.kind === "hot") lines.push("  " + it.name + " — " + fmt(c.total) + " portions (" + fmt(c.cases) + " " + caseWord(c.cases) + ")");
+              else lines.push("  " + it.name + " — " + fmt(c.total) + " eaches (" + fmt(c.cases) + " " + caseWord(c.cases) + ")");
             });
             lines.push("");
           });
@@ -2074,7 +2162,7 @@
             rows.forEach(function (it) {
               var c = countCalc(it);
               var unit = it.type === "hot" ? "portions" : "eaches";
-              lines.push("  " + it.name + " — " + fmt(c.total) + " " + unit + " (" + fmt(c.cases) + " cases)");
+              lines.push("  " + it.name + " — " + fmt(c.total) + " " + unit + " (" + fmt(c.cases) + " " + caseWord(c.cases) + ")");
             });
             lines.push("");
           });
@@ -2118,7 +2206,7 @@
           lines.push(cat.name.toUpperCase());
           rows.forEach(function (r) {
             var t = recvTotalFor(r);
-            lines.push("  " + r.name + " — " + fmt(t) + (r.kind === "bib" ? " BIBs" : " cases"));
+            lines.push("  " + r.name + " — " + fmt(t) + (r.kind === "bib" ? (t === 1 ? " BIB" : " BIBs") : (t === 1 ? " case" : " cases")));
           });
           lines.push("");
         });
@@ -2189,13 +2277,15 @@
         if (countPeriod === "month") renderMonth(); else renderCount();
       });
       document.getElementById("clearCount").addEventListener("click", function () {
-        countItems.forEach(function (it) {
-          it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null; it.portions = null;
-          delete countsChecked[it.id];
+        askClear("Clear Thursday count?", "This will clear the <b>Thursday count</b> — all 62 rows of this count sheet. This can't be undone.", function () {
+          countItems.forEach(function (it) {
+            it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null; it.portions = null;
+            delete countsChecked[it.id];
+          });
+          saveState();
+          renderCount();
+          toast("Thursday count cleared");
         });
-        saveState();
-        renderCount();
-        toast("Thursday count cleared");
       });
 
       // Restore everything saved on this device, then render with it.
