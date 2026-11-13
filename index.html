@@ -624,6 +624,7 @@
       <div id="orderView">
         <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:30px;text-transform:uppercase;margin:18px 0 0;">Order list</h2>
         <p class="sub" id="orderMeta"></p>
+        <p class="check-hint">Tap the circle on the left to cross off an item once you've entered it. Tap again to undo. Amount for each item is on the right.</p>
         <div id="orderBody"></div>
         <div class="order-actions">
           <button type="button" class="btn primary" id="copyOrder">Copy order</button>
@@ -777,7 +778,8 @@
             have: {}, counts: {}, month: {}, recvPending: {},
             recvLog: recvLog,
             countsChecked: countsChecked,
-            receivedChecked: receivedChecked
+            receivedChecked: receivedChecked,
+            orderChecked: orderChecked
           };
           products.forEach(function (p) { if (p.have !== null) data.have[p.id] = p.have; });
           countItems.forEach(function (it) {
@@ -868,6 +870,9 @@
         }
         if (data.receivedChecked) {
           Object.keys(data.receivedChecked).forEach(function (k) { if (data.receivedChecked[k]) receivedChecked[k] = true; });
+        }
+        if (data.orderChecked) {
+          Object.keys(data.orderChecked).forEach(function (k) { if (data.orderChecked[k]) orderChecked[k] = true; });
         }
       }
 
@@ -1092,15 +1097,18 @@
           CATS.forEach(function (cat) {
             var rows = items.filter(function (x) { return x.p.cat === cat.name && effSupplier(x.p) === sup; });
             if (!rows.length) return;
-            html += '<div class="order-cat">' + esc(cat.name) + '</div><table class="order">';
+            html += '<div class="order-cat">' + esc(cat.name) + '</div><div class="check-list">';
             rows.forEach(function (x) {
-              html += "<tr><td>" + esc(x.p.name) + "</td><td class='qty'>" + fmt(x.c.need) +
-                (x.c.cases ? "<small>" + x.c.cases + (x.c.cases === 1 ? " case" : " cases") + " × " + x.p.opts.caseSize + "</small>" : "") + "</td></tr>";
+              var sub = x.c.cases
+                ? x.c.cases + (x.c.cases === 1 ? " case" : " cases") + " × " + x.p.opts.caseSize
+                : "to order";
+              html += checkRowHtml(x.p.id, x.p.name, fmt(x.c.need), sub, orderChecked);
             });
-            html += "</table>";
+            html += "</div>";
           });
         });
         body.innerHTML = html;
+        bindCheckList(body, orderChecked);
       }
 
       function orderText() {
@@ -1140,6 +1148,7 @@
       document.getElementById("search").addEventListener("input", render);
       document.getElementById("clearAll").addEventListener("click", function () {
         products.forEach(function (p) { p.have = null; });
+        Object.keys(orderChecked).forEach(function (k) { delete orderChecked[k]; });
         saveState();
         render();
         toast("All counts cleared");
@@ -1925,6 +1934,7 @@
       // ---- Check-off state (saved on this device with everything else) ----
       var countsChecked = {};
       var receivedChecked = {};
+      var orderChecked = {};
       function checkRowHtml(key, name, qty, sub, crossedMap) {
         var crossed = !!crossedMap[key];
         return '<div class="check-row' + (crossed ? ' is-crossed' : '') + '">' +
