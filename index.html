@@ -928,7 +928,10 @@
         var target = p[state.mode];
         if (target === null || target === undefined) return { status: "unset", need: 0 };
         var have = p.have === null ? 0 : p.have;
-        var need = Math.max(0, target - have);
+        // Need always rounds UP to a whole number — you can't order a
+        // half box, so a raw need of 1.5 becomes 2. Have on hand stays
+        // exactly as entered (halves are fine); only the need rounds.
+        var need = Math.ceil(Math.max(0, target - have) - 1e-9);
         var cases = null;
         if (p.opts.caseSize && p.opts.caseSize > 1 && need > 0) {
           cases = Math.ceil(need / p.opts.caseSize);
