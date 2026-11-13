@@ -512,16 +512,6 @@
 
         <div class="settings" id="settings">
           <h2>Ordering settings</h2>
-          <label class="check">
-            <input type="checkbox" id="caseRound" checked />
-            <span><b>Round Lou Ana butter up to full cases</b>
-              <span class="hint">Butter ships 4 per case, so a need of 5 becomes 8 (2 cases). Turn off to order the exact unit count.</span></span>
-          </label>
-          <div class="numrow">
-            <label for="kettleThreshold"><b>Kettle cleaner reorder point</b></label>
-            <input type="number" id="kettleThreshold" min="0" step="0.5" value="3" />
-            <span class="hint">sleeves or fewer on hand → OK to order. Above this, cleaners stay on hold.</span>
-          </div>
           <div class="numrow">
             <button type="button" class="btn ghost" id="clearAll">Clear all counts</button>
           </div>
@@ -634,7 +624,7 @@
           ["Nacho Cheddar Salt", 1, 1, 0.5]
         ]},
         { name: "Popcorn / Butter", items: [
-          ["Lou Ana Topping Butter", 10, 8, 6, { caseSize: 4 }],
+          ["Lou Ana Topping Butter", 10, 8, 6, { caseSize: 1 }],
           ["SunGlo Popping Oil Canola", 20, 15, 10],
           ["Popcorn Premium Platinum", 50, 40, 30]
         ]},
@@ -654,8 +644,6 @@
         { name: "Misc", items: [
           ["16oz Boats", 2, 1, 0.5], ["Kids Trays Dino", 3, 3, 2], ["Nacho Trays", 2, 2, 1],
           ["Tork Paper Towel", 3, 2, 1], ["Tork Napkins", 4, 3, 2],
-          ["Inside Kettle Cleaner", 2, 2, 1, { kettle: true }],
-          ["Outside Kettle Cleaner", 2, 2, 1, { kettle: true }],
           ["2oz Dart Solo Cups", 1, 1, 0.5], ["2oz Dart Solo Lids", 1, 1, 0.5],
           ["10.25in Wrapped Straws", 5, 4, 3], ["46oz Tub", 3, 3, 2], ["85oz Tub", 6, 5, 4],
           ["130oz Tub", 8, 6, 4], ["170oz Tub", 10, 8, 6]
@@ -698,7 +686,7 @@
         });
       });
 
-      var state = { mode: "average", caseRound: true, kettleThreshold: 3 };
+      var state = { mode: "average" };
       var MODES = { busy: "Busy", average: "Average", slow: "Slow" };
       var SUPPLIER_INFO = {
         "Vistar": "Place the order at customerfirstsolutions.com",
@@ -755,18 +743,15 @@
       }
 
       // Core calculation for one product under the current settings.
-      // Returns {status: 'ok'|'unset'|'hold', need, cases}
+      // Returns {status: 'ok'|'unset', need, cases}
       function calc(p) {
         var target = p[state.mode];
         if (target === null || target === undefined) return { status: "unset", need: 0 };
         var have = p.have === null ? 0 : p.have;
         var inc = p.incoming === null ? 0 : p.incoming;
-        if (p.opts.kettle && p.have !== null && have > state.kettleThreshold) {
-          return { status: "hold", need: 0 };
-        }
         var need = Math.max(0, target - have - inc);
         var cases = null;
-        if (p.opts.caseSize && state.caseRound && need > 0) {
+        if (p.opts.caseSize && p.opts.caseSize > 1 && need > 0) {
           cases = Math.ceil(need / p.opts.caseSize);
           need = cases * p.opts.caseSize;
         }
@@ -807,8 +792,6 @@
         var badge;
         if (c.status === "unset") {
           badge = '<div class="need-badge unset"><span class="n">Not set</span><span class="l">Admin setup</span></div>';
-        } else if (c.status === "hold") {
-          badge = '<div class="need-badge hold"><span class="n">On hold</span><span class="l">Don\'t order yet</span></div>';
         } else if (c.need > 0) {
           badge = '<div class="need-badge low"><span class="n">' + fmt(c.need) + '</span><span class="l">Need</span></div>';
         } else {
@@ -816,15 +799,11 @@
         }
         var notes = "";
         if (p.opts.caseSize) {
-          notes += '<div class="note info">Sold <b>4 per case</b>.' +
-            (c.cases ? ' Need rounds up to <b>' + c.cases + (c.cases === 1 ? ' case' : ' cases') + '</b>.' : '') + '</div>';
+          notes += '<div class="note info">Sold <b>' + p.opts.caseSize + ' per case</b>.' +
+            (c.cases && p.opts.caseSize > 1 ? ' Need rounds up to <b>' + c.cases + (c.cases === 1 ? ' case' : ' cases') + '</b>.' : '') + '</div>';
         }
         if (p.opts.supplier) {
           notes += '<div class="note info">Order from <b>' + esc(p.opts.supplier) + '</b>, not Vistar. No stocking targets set yet — order by eye until an admin sets them.</div>';
-        }
-        if (p.opts.kettle) {
-          notes += '<div class="note warn">⚠ Do not order until the last ' + fmt(state.kettleThreshold) +
-            ' sleeves are being used. ' + (c.status === "hold" ? 'You still have more than that — this stays off the order.' : '') + '</div>';
         }
         if (c.status === "unset" && !p.opts.supplier) {
           notes += '<div class="note info">No ' + MODES[state.mode] + ' target set for this item yet, so it\'s left off the automatic order.</div>';
@@ -944,17 +923,11 @@
             html += '<div class="order-cat">' + esc(cat.name) + '</div><table class="order">';
             rows.forEach(function (x) {
               html += "<tr><td>" + esc(x.p.name) + "</td><td class='qty'>" + fmt(x.c.need) +
-                (x.c.cases ? "<small>" + x.c.cases + (x.c.cases === 1 ? " case" : " cases") + " × 4</small>" : "") + "</td></tr>";
+                (x.c.cases ? "<small>" + x.c.cases + (x.c.cases === 1 ? " case" : " cases") + " × " + x.p.opts.caseSize + "</small>" : "") + "</td></tr>";
             });
             html += "</table>";
           });
         });
-        var held = products.filter(function (p) { return calc(p).status === "hold" && effSupplier(p) === guideSupplier; });
-        if (held.length) {
-          html += '<div class="note warn" style="margin-top:16px;">Held off this order: ' +
-            held.map(function (p) { return esc(p.name); }).join(", ") +
-            ' — kettle cleaners aren\'t ordered until the last ' + fmt(state.kettleThreshold) + ' sleeves are in use.</div>';
-        }
         body.innerHTML = html;
       }
 
@@ -967,7 +940,7 @@
           var lastCat = "";
           items.filter(function (x) { return effSupplier(x.p) === sup; }).forEach(function (x) {
             if (x.p.cat !== lastCat) { lastCat = x.p.cat; lines.push(lastCat.toUpperCase()); }
-            lines.push("  " + x.p.name + " — " + fmt(x.c.need) + (x.c.cases ? " (" + x.c.cases + " cases × 4)" : ""));
+            lines.push("  " + x.p.name + " — " + fmt(x.c.need) + (x.c.cases ? " (" + x.c.cases + " cases × " + x.p.opts.caseSize + ")" : ""));
           });
           return lines.join("\n");
         });
@@ -992,14 +965,6 @@
       });
 
       document.getElementById("search").addEventListener("input", render);
-      document.getElementById("caseRound").addEventListener("change", function (e) {
-        state.caseRound = e.target.checked; render();
-      });
-      document.getElementById("kettleThreshold").addEventListener("input", function (e) {
-        var v = parseFloat(e.target.value);
-        state.kettleThreshold = isNaN(v) || v < 0 ? 3 : v;
-        render();
-      });
       document.getElementById("clearAll").addEventListener("click", function () {
         products.forEach(function (p) { p.have = null; p.incoming = null; });
         render();
@@ -1282,7 +1247,7 @@
           note: "Counted in eaches like the Thursday rows: boxes × per box + sleeves × per sleeve + each, converted to cases for reference.",
           items: [
           ["Popcorn Seed", 1, 1, "Popcorn Premium Platinum"], ["Popping Oil", 1, 1, "SunGlo Popping Oil Canola"],
-          ["Butter Topping (by each)", 1, 1, "Lou Ana Topping Butter", { divisor: 4, conv: "Counted by the tub · 4 tubs = 1 case" }],
+          ["Butter Topping (by each)", 1, 1, "Lou Ana Topping Butter", { divisor: 1, conv: "Counted by the tub · 1 tub = 1 case" }],
           ["Cheese (4 bags per box)", 4, 1, "Tostitos Cheese", { portionsPer: 35, conv: "4 bags per box · 35 portions per bag · 140 portions per box" }],
           ["Jalapeno Peppers", 4, 1, "Ricos Jalapenos"],
           ["KRN - Kettle Corn", 6, 1, "Kettle Salt"], ["KRN - Nacho Cheese", 6, 1, "Nacho Cheddar Salt"],
