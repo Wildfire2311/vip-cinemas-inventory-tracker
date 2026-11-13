@@ -252,7 +252,7 @@
       .need-badge.hold { background: var(--warn-bg); color: var(--warn-ink); }
       .need-badge.unset .n, .need-badge.hold .n { font-size: 15px; font-family: "Barlow", sans-serif; padding: 4px 0; }
 
-      .inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      .inputs { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px; }
       .field { min-width: 0; }
       .field label {
         display: block;
@@ -449,7 +449,7 @@
       .toast.show { opacity: 1; }
       .hidden { display: none !important; }
       @media (min-width: 560px) {
-        .inputs { grid-template-columns: 1fr 1fr; }
+        .inputs { grid-template-columns: 1fr; }
       }
       @media (min-width: 700px) {
         h1 { font-size: 52px; }
@@ -681,7 +681,7 @@
           products.push({
             id: ci + "-" + ii, cat: cat.name, supplier: cat.supplier || "Vistar", name: it[0],
             busy: it[1], average: it[2], slow: it[3],
-            opts: it[4] || {}, have: null, incoming: null
+            opts: it[4] || {}, have: null
           });
         });
       });
@@ -748,8 +748,7 @@
         var target = p[state.mode];
         if (target === null || target === undefined) return { status: "unset", need: 0 };
         var have = p.have === null ? 0 : p.have;
-        var inc = p.incoming === null ? 0 : p.incoming;
-        var need = Math.max(0, target - have - inc);
+        var need = Math.max(0, target - have);
         var cases = null;
         if (p.opts.caseSize && p.opts.caseSize > 1 && need > 0) {
           cases = Math.ceil(need / p.opts.caseSize);
@@ -817,10 +816,6 @@
               '<div class="stepper"><button type="button" data-step="-1" data-for="have-' + p.id + '" aria-label="Decrease on hand">−</button>' +
               '<input id="have-' + p.id + '" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0" value="' + (p.have === null ? "" : p.have) + '" />' +
               '<button type="button" data-step="1" data-for="have-' + p.id + '" aria-label="Increase on hand">+</button></div></div>' +
-            '<div class="field"><label for="inc-' + p.id + '">Already incoming</label>' +
-              '<div class="stepper"><button type="button" data-step="-1" data-for="inc-' + p.id + '" aria-label="Decrease incoming">−</button>' +
-              '<input id="inc-' + p.id + '" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0" value="' + (p.incoming === null ? "" : p.incoming) + '" />' +
-              '<button type="button" data-step="1" data-for="inc-' + p.id + '" aria-label="Increase incoming">+</button></div></div>' +
           '</div>' + notes + '</div>';
       }
 
@@ -837,7 +832,7 @@
             var p = findProduct(row.getAttribute("data-id"));
             var v = e.target.value === "" ? null : parseFloat(e.target.value);
             if (v !== null && (isNaN(v) || v < 0)) v = null;
-            if (e.target.id.indexOf("have-") === 0) { p.have = v; } else p.incoming = v;
+            p.have = v;
             refreshRow(p);
             updateSummary();
           });
@@ -966,7 +961,7 @@
 
       document.getElementById("search").addEventListener("input", render);
       document.getElementById("clearAll").addEventListener("click", function () {
-        products.forEach(function (p) { p.have = null; p.incoming = null; });
+        products.forEach(function (p) { p.have = null; });
         render();
         toast("All counts cleared");
       });
