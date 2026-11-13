@@ -480,7 +480,7 @@
           <div class="kicker">VIP Cinemas · Concessions</div>
         </div>
         <h1>VIP Cinemas Inventory Tracker</h1>
-        <p class="sub">Count what you have, pick how busy it'll be, and the guide works out what to order — for Vistar, ICEE, and Pepsi. Each supplier's sections below say how that order is placed.</p>
+        <p class="sub">Count what you have, pick how busy it'll be, and the guide works out what to order — for Vistar, ICEE, Pepsi, and US Foods. Each supplier's sections below say how that order is placed.</p>
       </header>
 
       <div class="tabs" role="group" aria-label="View">
@@ -638,10 +638,14 @@
           ["SunGlo Popping Oil Canola", 20, 15, 10],
           ["Popcorn Premium Platinum", 50, 40, 30]
         ]},
-        { name: "Hot Food", items: [
-          ["Pizza", 4, 3, 2], ["Chicken Tenders", 4, 3, 2], ["Waffle Fries", 3, 3, 2],
-          ["Mozzarella Sticks", 4, 3, 2], ["Hot dogs", 4, 3, 2],
-          ["Hot Dog Buns", null, null, null, { noSupplier: true }]
+        { name: "Hot Food", supplier: "US Foods", items: [
+          ["Pizza", null, null, null], ["Chicken Tenders", null, null, null], ["Waffle Fries", null, null, null],
+          ["Mozzarella Sticks", null, null, null], ["Hot dogs", null, null, null],
+          ["Hot Dog Buns", null, null, null],
+          ["Mac N Cheese Bites", null, null, null], ["Mini Tacos", null, null, null],
+          ["Fried Pickles", null, null, null], ["Pretzel Bites", null, null, null],
+          ["Mini Corn Dogs", null, null, null], ["POPPERS", null, null, null],
+          ["Pretzel Sticks", null, null, null]
         ]},
         { name: "Sauces", items: [
           ["BBQ Sauce", 3, 2, 1], ["Marinera Sauce", 3, 2, 1], ["Ranch Sauce", 3, 2, 1],
@@ -701,12 +705,12 @@
         "ICEE": "Monthly order — email servicecall@icee.com and cc Josh; provide our address when asked",
         "Pepsi": "Input all information on the Pepsi Portal"
       };
-      var SUPPLIER_ORDER = ["Vistar", "ICEE", "Pepsi", "Other"];
+      var SUPPLIER_ORDER = ["Vistar", "ICEE", "Pepsi", "US Foods", "Other"];
       var guideSupplier = "Vistar";
       var recvSupplier = "Vistar";
 
       // A product's supplier: a per-product supplier wins over its
-      // category's supplier; a product marked noSupplier (Hot Dog Buns)
+      // category's supplier; a product marked noSupplier
       // has no supplier and falls under "Other".
       function effSupplier(p) {
         if (p.opts && p.opts.supplier) return p.opts.supplier;
@@ -1062,12 +1066,12 @@
           note: "Counted in portions, using the hot food portion guide: boxes × portions per case + sleeves × portions per sleeve + loose portions.",
           items: [
           ["Chicken Tenders", 20, 10], ["Mozzerella Stick", 28.5, 4.75, "Mozzarella Sticks"],
-          ["Mac N Cheese Bites", 24, 6, null], ["Mini Tacos", 42, 10.5, null],
-          ["Fried Pickles", 32, 16, null], ["Waffle Fries", 63, 10.5],
+          ["Mac N Cheese Bites", 24, 6, "Mac N Cheese Bites"], ["Mini Tacos", 42, 10.5, "Mini Tacos"],
+          ["Fried Pickles", 32, 16, "Fried Pickles"], ["Waffle Fries", 63, 10.5],
           ["Nacho Chips", 28, 28, "Tostitos Nachos"], ["Hot Dogs (Nathans)", 50, 2, "Hot dogs"],
-          ["Pretzel (biites)", 19.5, 19.5, null], ["Pizza", 1, 1],
-          ["Mini Corn Dog", 17, 8.5, null], ["POPPERS", 27.5, 7, null],
-          ["PRETZEL STICKS", 24, 24, null]
+          ["Pretzel (biites)", 19.5, 19.5, "Pretzel Bites"], ["Pizza", 1, 1],
+          ["Mini Corn Dog", 17, 8.5, "Mini Corn Dogs"], ["POPPERS", 27.5, 7, "POPPERS"],
+          ["PRETZEL STICKS", 24, 24, "Pretzel Sticks"]
         ]},
         { name: "Paper Products", type: "each",
           note: "Counted in individual pieces: boxes × per box + sleeves × per sleeve + stand + misc. Cup and tub sizes follow the ounce order on the order guide (smallest ounces = smallest size).",
