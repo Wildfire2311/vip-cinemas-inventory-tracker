@@ -543,6 +543,7 @@
           <h2>Ordering settings</h2>
           <div class="numrow">
             <button type="button" class="btn ghost" id="clearAll">Clear all counts</button>
+            <span class="hint">Everything you enter is saved automatically on this device as you go — closing the app or swiping it away won't lose it. It stays saved until you clear it.</span>
           </div>
         </div>
       </div>
@@ -596,20 +597,28 @@
           <div class="sup-tabs" id="recvSupTabs" role="group" aria-label="Supplier"></div>
           <p class="sup-info" id="recvSupInfo"></p>
           <div class="summary">
-            <span class="chip"><strong id="rcvCount">0</strong> receipts this session</span>
+            <span class="chip"><strong id="rcvCount">0</strong> receipts recorded</span>
             <span class="chip"><strong id="rcvItems">0</strong> products restocked</span>
           </div>
           <input class="search" id="recvSearch" type="search" placeholder="Search products…" aria-label="Search products to receive" />
         </div>
 
-        <p class="sub" style="margin-top:14px;">When a delivery arrives, enter what came in — in the same units as counting — and tap <b>Record received</b>. What you enter is logged here, with a running received total for each product. Receiving stays on this page only — it doesn't change the order guide or the counts. Like the counts, receiving is kept for this session only.</p>
+        <p class="sub" style="margin-top:14px;">When a delivery arrives, enter what came in — in the same units as counting — and tap <b>Record received</b>. What you enter is logged here, with a running received total for each product. Receiving stays on this page only — it doesn't change the order guide or the counts. Receipts are saved automatically on this device, like everything else in the app — they stay until you clear them below.</p>
 
         <div id="recvLogWrap" class="hidden">
-          <h2 class="order-cat" style="margin-top:20px;">Received this session</h2>
+          <h2 class="order-cat" style="margin-top:20px;">Received</h2>
           <div id="recvLog"></div>
         </div>
 
         <main id="recvCatalog"></main>
+
+        <div class="settings">
+          <h2>Receiving</h2>
+          <div class="numrow">
+            <button type="button" class="btn ghost" id="clearRecv">Clear received records</button>
+            <span class="hint">Clears the received log and totals saved on this device — the counts and the order guide don't change.</span>
+          </div>
+        </div>
       </div>
 
       <div id="orderView">
@@ -748,6 +757,120 @@
       var guideSupplier = "Vistar";
       var recvSupplier = "Vistar";
 
+      // ---- On-device auto-save -------------------------------------------
+      // Everything entered is saved to this device's localStorage the
+      // moment it's entered, so closing the app, swiping it away from
+      // recents, or reopening it never loses progress. The saved data is
+      // only removed when a Clear button is tapped (Clear all counts,
+      // Clear Thursday count, Clear month-end count, Clear received
+      // records) — each clear rewrites the saved data for its own view.
+      var STORE_KEY = "vipCinemasInventory.v1";
+      function saveState() {
+        try {
+          if (!window.localStorage) return;
+          var data = {
+            v: 1,
+            mode: state.mode,
+            guideSupplier: guideSupplier,
+            recvSupplier: recvSupplier,
+            countPeriod: countPeriod,
+            have: {}, counts: {}, month: {}, recvPending: {},
+            recvLog: recvLog,
+            countsChecked: countsChecked,
+            receivedChecked: receivedChecked
+          };
+          products.forEach(function (p) { if (p.have !== null) data.have[p.id] = p.have; });
+          countItems.forEach(function (it) {
+            var e = {};
+            ["boxes", "sleeves", "stand", "misc", "portions"].forEach(function (k) {
+              if (it[k] !== null) e[k] = it[k];
+            });
+            if (Object.keys(e).length) data.counts[it.id] = e;
+          });
+          monthItems.forEach(function (it) {
+            var e = {};
+            ["boxes", "sleeves", "stand", "misc", "portions", "each", "bibs"].forEach(function (k) {
+              if (it[k] !== null) e[k] = it[k];
+            });
+            if (Object.keys(e).length) data.month[it.id] = e;
+          });
+          recvItems.forEach(function (r) {
+            var e = {};
+            ["boxes", "sleeves", "stand", "misc", "portions", "each", "bibs", "casesQty"].forEach(function (k) {
+              if (r[k] !== null) e[k] = r[k];
+            });
+            if (Object.keys(e).length) data.recvPending[r.pid] = e;
+          });
+          localStorage.setItem(STORE_KEY, JSON.stringify(data));
+        } catch (err) { /* storage unavailable — the page still works for this visit */ }
+      }
+      function loadState() {
+        var data = null;
+        try {
+          var raw = window.localStorage ? localStorage.getItem(STORE_KEY) : null;
+          if (raw) data = JSON.parse(raw);
+        } catch (err) { data = null; }
+        if (!data) return;
+        if (data.mode && MODES[data.mode]) {
+          state.mode = data.mode;
+          modeBtns.forEach(function (x) {
+            var m = x.getAttribute("data-mode");
+            if (m) x.setAttribute("aria-pressed", m === state.mode ? "true" : "false");
+          });
+        }
+        if (data.guideSupplier) guideSupplier = data.guideSupplier;
+        if (data.recvSupplier) recvSupplier = data.recvSupplier;
+        if (data.countPeriod === "month" || data.countPeriod === "thu") countPeriod = data.countPeriod;
+        if (data.have) {
+          products.forEach(function (p) {
+            if (Object.prototype.hasOwnProperty.call(data.have, p.id)) {
+              var v = data.have[p.id];
+              p.have = (typeof v === "number" && !isNaN(v) && v >= 0) ? v : null;
+            }
+          });
+        }
+        if (data.counts) {
+          countItems.forEach(function (it) {
+            var e = data.counts[it.id];
+            if (!e) return;
+            ["boxes", "sleeves", "stand", "misc", "portions"].forEach(function (k) {
+              if (typeof e[k] === "number" && !isNaN(e[k]) && e[k] >= 0) it[k] = e[k];
+            });
+          });
+        }
+        if (data.month) {
+          monthItems.forEach(function (it) {
+            var e = data.month[it.id];
+            if (!e) return;
+            ["boxes", "sleeves", "stand", "misc", "portions", "each", "bibs"].forEach(function (k) {
+              if (typeof e[k] === "number" && !isNaN(e[k]) && e[k] >= 0) it[k] = e[k];
+            });
+          });
+        }
+        if (data.recvPending) {
+          recvItems.forEach(function (r) {
+            var e = data.recvPending[r.pid];
+            if (!e) return;
+            ["boxes", "sleeves", "stand", "misc", "portions", "each", "bibs", "casesQty"].forEach(function (k) {
+              if (typeof e[k] === "number" && !isNaN(e[k]) && e[k] >= 0) r[k] = e[k];
+            });
+          });
+        }
+        if (data.recvLog && data.recvLog.length) {
+          recvLog = data.recvLog.filter(function (e) {
+            return e && typeof e.delta === "number" && e.name;
+          }).map(function (e) {
+            return { pid: e.pid, name: e.name, desc: e.desc || "", delta: e.delta, kind: e.kind, time: e.time ? new Date(e.time) : new Date() };
+          });
+        }
+        if (data.countsChecked) {
+          Object.keys(data.countsChecked).forEach(function (k) { if (data.countsChecked[k]) countsChecked[k] = true; });
+        }
+        if (data.receivedChecked) {
+          Object.keys(data.receivedChecked).forEach(function (k) { if (data.receivedChecked[k]) receivedChecked[k] = true; });
+        }
+      }
+
       // A product's supplier: a per-product supplier wins over its
       // category's supplier; a product marked noSupplier
       // has no supplier and falls under "Other".
@@ -778,6 +901,7 @@
         for (var i = 0; i < btns.length; i++) {
           btns[i].addEventListener("click", function (e) {
             guideSupplier = e.currentTarget.getAttribute("data-sup");
+            saveState();
             render();
             window.scrollTo(0, 0);
           });
@@ -884,6 +1008,7 @@
             var v = e.target.value === "" ? null : parseFloat(e.target.value);
             if (v !== null && (isNaN(v) || v < 0)) v = null;
             p.have = v;
+            saveState();
             refreshRow(p);
             updateSummary();
           });
@@ -1006,6 +1131,7 @@
       modeBtns.forEach(function (b) {
         b.addEventListener("click", function () {
           state.mode = b.getAttribute("data-mode");
+          saveState();
           modeBtns.forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
           render();
         });
@@ -1014,6 +1140,7 @@
       document.getElementById("search").addEventListener("input", render);
       document.getElementById("clearAll").addEventListener("click", function () {
         products.forEach(function (p) { p.have = null; });
+        saveState();
         render();
         toast("All counts cleared");
       });
@@ -1218,6 +1345,7 @@
             var v = e.target.value === "" ? null : parseFloat(e.target.value);
             if (v !== null && (isNaN(v) || v < 0)) v = null;
             it[e.target.getAttribute("data-field")] = v;
+            saveState();
             refreshCountRow(it);
             updateCountProgress();
           });
@@ -1445,6 +1573,7 @@
             var v = e.target.value === "" ? null : parseFloat(e.target.value);
             if (v !== null && (isNaN(v) || v < 0)) v = null;
             it[e.target.getAttribute("data-field")] = v;
+            saveState();
             refreshMonthRow(it);
             updateMonthProgress();
           });
@@ -1491,6 +1620,7 @@
       var countPeriod = "thu";
       function setPeriod(per) {
         countPeriod = per;
+        saveState();
         document.getElementById("thursdayView").classList.toggle("period-month", per === "month");
         document.getElementById("perThu").setAttribute("aria-pressed", per === "thu" ? "true" : "false");
         document.getElementById("perMonth").setAttribute("aria-pressed", per === "month" ? "true" : "false");
@@ -1506,6 +1636,7 @@
           it.portions = null; it.each = null; it.bibs = null;
           if (typeof countsChecked !== "undefined") delete countsChecked[it.id];
         });
+        saveState();
         renderMonth();
         toast("Month-end count cleared");
       });
@@ -1517,7 +1648,8 @@
       // product with no count row anywhere is received in cases. Receiving
       // is independent: quantities are recorded only in this view — a
       // session log plus a per-product received total — and never change
-      // the order guide or the counts. Session-only, like the counts.
+      // the order guide or the counts. Saved on this device like
+      // everything else; cleared only by Clear received records.
       var recvItems = [];
       products.forEach(function (p) {
         var spec = null, src = null, i;
@@ -1656,6 +1788,7 @@
         for (var i = 0; i < btns.length; i++) {
           btns[i].addEventListener("click", function (e) {
             recvSupplier = e.currentTarget.getAttribute("data-sup");
+            saveState();
             renderRecv();
             window.scrollTo(0, 0);
           });
@@ -1698,6 +1831,7 @@
             var v = e.target.value === "" ? null : parseFloat(e.target.value);
             if (v !== null && (isNaN(v) || v < 0)) v = null;
             r[e.target.getAttribute("data-field")] = v;
+            saveState();
           });
         }
         var btns = row.querySelectorAll(".stepper button");
@@ -1732,6 +1866,7 @@
         recvLog.unshift({ pid: r.pid, name: r.name, desc: c.desc, delta: c.delta, kind: r.kind, time: new Date() });
         r.boxes = null; r.sleeves = null; r.stand = null; r.misc = null;
         r.portions = null; r.each = null; r.bibs = null; r.casesQty = null;
+        saveState();
         refreshRecvRow(r);
         renderRecvLog();
         updateRecvSummary();
@@ -1765,15 +1900,29 @@
         var cv = currentView();
         if (cv !== "receive" && cv !== "receivedlist") return;
         document.getElementById("barTotal").textContent = recvLog.length
-          ? recvLog.length + (recvLog.length === 1 ? " receipt" : " receipts") + " this session"
+          ? recvLog.length + (recvLog.length === 1 ? " receipt" : " receipts") + " recorded"
           : "Nothing received yet";
-        document.getElementById("barSub").textContent = "Receipts are recorded on this page only";
+        document.getElementById("barSub").textContent = "Receipts are saved on this device";
       }
 
       document.getElementById("tabReceive").addEventListener("click", function () { setView("receive"); });
       document.getElementById("recvSearch").addEventListener("input", renderRecv);
+      document.getElementById("clearRecv").addEventListener("click", function () {
+        recvLog = [];
+        recvItems.forEach(function (r) {
+          r.boxes = null; r.sleeves = null; r.stand = null; r.misc = null;
+          r.portions = null; r.each = null; r.bibs = null; r.casesQty = null;
+        });
+        Object.keys(receivedChecked).forEach(function (k) { delete receivedChecked[k]; });
+        saveState();
+        renderRecv();
+        renderRecvLog();
+        updateRecvSummary();
+        syncReceiveBar();
+        toast("Received records cleared");
+      });
 
-      // ---- Check-off state (session-only, resets on reload) ---------------
+      // ---- Check-off state (saved on this device with everything else) ----
       var countsChecked = {};
       var receivedChecked = {};
       function checkRowHtml(key, name, qty, sub, crossedMap) {
@@ -1790,6 +1939,7 @@
             var btn = e.currentTarget;
             var key = btn.getAttribute('data-check-key');
             if (crossedMap[key]) delete crossedMap[key]; else crossedMap[key] = true;
+            saveState();
             var crossed = !!crossedMap[key];
             var row = btn.closest('.check-row');
             if (row) row.classList.toggle('is-crossed', crossed);
@@ -1887,11 +2037,11 @@
         var body = document.getElementById("receivedBody");
         var now = new Date();
         document.getElementById("receivedMeta").textContent =
-          "VIP Cinemas · Received this session · " +
+          "VIP Cinemas · Received · " +
           now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
         var withTotals = recvItems.filter(function (r) { return recvTotalFor(r) > 0; });
         if (!withTotals.length) {
-          body.innerHTML = '<div class="empty">Nothing received yet this session.<br/>Go back to Receive and record a delivery — each product\'s received total shows up here.</div>';
+          body.innerHTML = '<div class="empty">Nothing received yet.<br/>Go back to Receive and record a delivery — each product\'s received total shows up here.</div>';
           return;
         }
         var html = "";
@@ -1911,7 +2061,7 @@
       }
 
       function receivedText() {
-        var lines = ["VIP CINEMAS — RECEIVED THIS SESSION", ""];
+        var lines = ["VIP CINEMAS — RECEIVED", ""];
         CATS.forEach(function (cat) {
           var rows = recvItems.filter(function (r) { return r.cat === cat.name && recvTotalFor(r) > 0; });
           if (!rows.length) return;
@@ -1993,14 +2143,24 @@
           it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null; it.portions = null;
           delete countsChecked[it.id];
         });
+        saveState();
         renderCount();
         toast("Thursday count cleared");
       });
 
+      // Restore everything saved on this device, then render with it.
+      loadState();
+      window.addEventListener("pagehide", saveState);
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "hidden") saveState();
+      });
       render();
       renderCount();
       renderMonth();
       renderRecv();
+      renderRecvLog();
+      updateRecvSummary();
+      if (countPeriod === "month") setPeriod("month");
     </script>
     <script>
       // Installable-app plumbing: register the offline service worker so
