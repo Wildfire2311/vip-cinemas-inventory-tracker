@@ -426,6 +426,18 @@
       #orderView { display: none; }
       body.show-order #orderView { display: block; }
       body.show-order #countView { display: none; }
+
+      /* Counts list view (detail for the Count tab) */
+      #countsListView { display: none; }
+      body.show-counts #countsListView { display: block; }
+      body.show-counts #countView { display: none; }
+      body.show-counts #thursdayView { display: none; }
+
+      /* Received list view (detail for the Receive tab) */
+      #receivedListView { display: none; }
+      body.show-receivedlist #receivedListView { display: block; }
+      body.show-receivedlist #countView { display: none; }
+      body.show-receivedlist #receiveView { display: none; }
       .order-cat { font-family: "Barlow Condensed", sans-serif; font-size: 20px; text-transform: uppercase; margin: 18px 0 6px; }
       table.order { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
       table.order td { padding: 9px 12px; border-bottom: 1px solid var(--line); font-size: 16px; }
@@ -590,6 +602,26 @@
         <div class="order-actions">
           <button type="button" class="btn primary" id="copyOrder">Copy order</button>
           <button type="button" class="btn ghost" id="backToCount">Back to counting</button>
+        </div>
+      </div>
+
+      <div id="countsListView">
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:30px;text-transform:uppercase;margin:18px 0 0;">Counts list</h2>
+        <p class="sub" id="countsMeta"></p>
+        <div id="countsBody"></div>
+        <div class="order-actions">
+          <button type="button" class="btn primary" id="copyCounts">Copy counts</button>
+          <button type="button" class="btn ghost" id="backFromCounts">Back to count</button>
+        </div>
+      </div>
+
+      <div id="receivedListView">
+        <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:30px;text-transform:uppercase;margin:18px 0 0;">Received list</h2>
+        <p class="sub" id="receivedMeta"></p>
+        <div id="receivedBody"></div>
+        <div class="order-actions">
+          <button type="button" class="btn primary" id="copyReceived">Copy received</button>
+          <button type="button" class="btn ghost" id="backFromReceived">Back to receiving</button>
         </div>
       </div>
     </div>
@@ -883,7 +915,8 @@
         document.getElementById("sumTotal").textContent = scope.length;
         document.getElementById("sumUnset").classList.toggle("hidden", unset === 0);
         document.getElementById("sumUnsetN").textContent = unset;
-        if (currentView() !== "thursday" && currentView() !== "receive") {
+        var cv0 = currentView();
+        if (cv0 === "guide" || cv0 === "order") {
           var totalUnits = items.reduce(function (s, x) { return s + x.c.need; }, 0);
           document.getElementById("barTotal").textContent = items.length
             ? items.length + " items · " + fmt(totalUnits) + " units to order"
@@ -966,7 +999,14 @@
         toast("All counts cleared");
       });
       document.getElementById("viewOrderBtn").addEventListener("click", function () {
-        setView(currentView() === "order" ? "guide" : "order");
+        var cv = currentView();
+        if (cv === "guide") setView("order");
+        else if (cv === "order") setView("guide");
+        else if (cv === "thursday") setView("counts");
+        else if (cv === "counts") setView("thursday");
+        else if (cv === "receive") setView("receivedlist");
+        else if (cv === "receivedlist") setView("receive");
+        else setView("order");
       });
       document.getElementById("backToCount").addEventListener("click", function () {
         setView("guide");
@@ -1203,7 +1243,8 @@
 
       // The bottom bar follows whichever count period is on screen.
       function syncCountBar() {
-        if (currentView() !== "thursday") return;
+        var cv = currentView();
+        if (cv !== "thursday" && cv !== "counts") return;
         if (countPeriod === "month") {
           var mdone = 0;
           monthItems.forEach(function (it) { if (monthCalc(it).counted) mdone++; });
@@ -1701,7 +1742,8 @@
 
       // The bottom bar follows the receive view while it's on screen.
       function syncReceiveBar() {
-        if (currentView() !== "receive") return;
+        var cv = currentView();
+        if (cv !== "receive" && cv !== "receivedlist") return;
         document.getElementById("barTotal").textContent = recvLog.length
           ? recvLog.length + (recvLog.length === 1 ? " receipt" : " receipts") + " this session"
           : "Nothing received yet";
@@ -1711,8 +1753,158 @@
       document.getElementById("tabReceive").addEventListener("click", function () { setView("receive"); });
       document.getElementById("recvSearch").addEventListener("input", renderRecv);
 
+      // ---- Counts list (detail for the Count tab) -------------------------
+      function renderCountsList() {
+        var body = document.getElementById("countsBody");
+        var now = new Date();
+        var isMonth = countPeriod === "month";
+        document.getElementById("countsMeta").textContent =
+          "VIP Cinemas · " + (isMonth ? "Month-End count" : "Thursday count") + " · " +
+          now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        var html = "";
+        if (isMonth) {
+          var countedM = monthItems.filter(function (it) { return monthCalc(it).counted; });
+          if (!countedM.length) {
+            body.innerHTML = '<div class="empty">Nothing counted yet on the month-end count.<br/>Go back and enter counts — each counted item shows up here in sheet order.</div>';
+            return;
+          }
+          MONTH_CATS.forEach(function (cat) {
+            var rows = monthItems.filter(function (it) { return it.cat === cat.name && monthCalc(it).counted; });
+            if (!rows.length) return;
+            html += '<div class="order-cat">' + esc(cat.name) + '</div><table class="order">';
+            rows.forEach(function (it) {
+              var c = monthCalc(it);
+              var qty, sub;
+              if (it.kind === "bib") { qty = fmt(c.total); sub = (c.total === 1 ? "BIB" : "BIBs") + " · " + fmt(c.gallons) + " gal"; }
+              else if (it.kind === "hot") { qty = fmt(c.total); sub = "portions · " + fmt(c.cases) + " cases"; }
+              else { qty = fmt(c.total); sub = "eaches · " + fmt(c.cases) + " cases"; }
+              html += "<tr><td>" + esc(it.name) + "</td><td class='qty'>" + qty + "<small>" + esc(sub) + "</small></td></tr>";
+            });
+            html += "</table>";
+          });
+        } else {
+          var countedT = countItems.filter(function (it) { return countCalc(it).counted; });
+          if (!countedT.length) {
+            body.innerHTML = '<div class="empty">Nothing counted yet on the Thursday count.<br/>Go back and enter counts — each counted item shows up here in sheet order.</div>';
+            return;
+          }
+          COUNT_CATS.forEach(function (cat) {
+            var rows = countItems.filter(function (it) { return it.cat === cat.name && countCalc(it).counted; });
+            if (!rows.length) return;
+            html += '<div class="order-cat">' + esc(cat.name) + '</div><table class="order">';
+            rows.forEach(function (it) {
+              var c = countCalc(it);
+              var unit = it.type === "hot" ? "portions" : "eaches";
+              html += "<tr><td>" + esc(it.name) + "</td><td class='qty'>" + fmt(c.total) +
+                "<small>" + unit + " · " + fmt(c.cases) + " cases</small></td></tr>";
+            });
+            html += "</table>";
+          });
+        }
+        body.innerHTML = html;
+      }
+
+      function countsText() {
+        var isMonth = countPeriod === "month";
+        var lines = ["VIP CINEMAS — " + (isMonth ? "MONTH-END COUNT" : "THURSDAY COUNT"), ""];
+        if (isMonth) {
+          MONTH_CATS.forEach(function (cat) {
+            var rows = monthItems.filter(function (it) { return it.cat === cat.name && monthCalc(it).counted; });
+            if (!rows.length) return;
+            lines.push(cat.name.toUpperCase());
+            rows.forEach(function (it) {
+              var c = monthCalc(it);
+              if (it.kind === "bib") lines.push("  " + it.name + " — " + fmt(c.total) + " BIBs (" + fmt(c.gallons) + " gal)");
+              else if (it.kind === "hot") lines.push("  " + it.name + " — " + fmt(c.total) + " portions (" + fmt(c.cases) + " cases)");
+              else lines.push("  " + it.name + " — " + fmt(c.total) + " eaches (" + fmt(c.cases) + " cases)");
+            });
+            lines.push("");
+          });
+        } else {
+          COUNT_CATS.forEach(function (cat) {
+            var rows = countItems.filter(function (it) { return it.cat === cat.name && countCalc(it).counted; });
+            if (!rows.length) return;
+            lines.push(cat.name.toUpperCase());
+            rows.forEach(function (it) {
+              var c = countCalc(it);
+              var unit = it.type === "hot" ? "portions" : "eaches";
+              lines.push("  " + it.name + " — " + fmt(c.total) + " " + unit + " (" + fmt(c.cases) + " cases)");
+            });
+            lines.push("");
+          });
+        }
+        return lines.join("\n");
+      }
+
+      // ---- Received list (detail for the Receive tab) ---------------------
+      function renderReceivedList() {
+        var body = document.getElementById("receivedBody");
+        var now = new Date();
+        document.getElementById("receivedMeta").textContent =
+          "VIP Cinemas · Received this session · " +
+          now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        var withTotals = recvItems.filter(function (r) { return recvTotalFor(r) > 0; });
+        if (!withTotals.length) {
+          body.innerHTML = '<div class="empty">Nothing received yet this session.<br/>Go back to Receive and record a delivery — each product\'s received total shows up here.</div>';
+          return;
+        }
+        var html = "";
+        CATS.forEach(function (cat) {
+          var rows = recvItems.filter(function (r) { return r.cat === cat.name && recvTotalFor(r) > 0; });
+          if (!rows.length) return;
+          html += '<div class="order-cat">' + esc(cat.name) + '</div><table class="order">';
+          rows.forEach(function (r) {
+            var t = recvTotalFor(r);
+            var unit = r.kind === "bib" ? (t === 1 ? "BIB received" : "BIBs received") : (t === 1 ? "case received" : "cases received");
+            html += "<tr><td>" + esc(r.name) + "</td><td class='qty'>" + fmt(t) + "<small>" + unit + "</small></td></tr>";
+          });
+          html += "</table>";
+        });
+        body.innerHTML = html;
+      }
+
+      function receivedText() {
+        var lines = ["VIP CINEMAS — RECEIVED THIS SESSION", ""];
+        CATS.forEach(function (cat) {
+          var rows = recvItems.filter(function (r) { return r.cat === cat.name && recvTotalFor(r) > 0; });
+          if (!rows.length) return;
+          lines.push(cat.name.toUpperCase());
+          rows.forEach(function (r) {
+            var t = recvTotalFor(r);
+            lines.push("  " + r.name + " — " + fmt(t) + (r.kind === "bib" ? " BIBs" : " cases"));
+          });
+          lines.push("");
+        });
+        return lines.join("\n");
+      }
+
+      function copyTextToClipboard(text, okMsg) {
+        function done() { toast(okMsg); }
+        function fallback() {
+          var ta = document.createElement("textarea");
+          ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand("copy"); done(); }
+          catch (e) { toast("Copy didn't work — screenshot the list instead"); }
+          document.body.removeChild(ta);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, fallback);
+        } else { fallback(); }
+      }
+      document.getElementById("copyCounts").addEventListener("click", function () {
+        copyTextToClipboard(countsText(), "Counts copied — paste it anywhere");
+      });
+      document.getElementById("backFromCounts").addEventListener("click", function () { setView("thursday"); });
+      document.getElementById("copyReceived").addEventListener("click", function () {
+        copyTextToClipboard(receivedText(), "Received list copied — paste it anywhere");
+      });
+      document.getElementById("backFromReceived").addEventListener("click", function () { setView("receive"); });
+
       // ---- View switching --------------------------------------------------
       function currentView() {
+        if (document.body.classList.contains("show-counts")) return "counts";
+        if (document.body.classList.contains("show-receivedlist")) return "receivedlist";
         if (document.body.classList.contains("show-thursday")) return "thursday";
         if (document.body.classList.contains("show-receive")) return "receive";
         if (document.body.classList.contains("show-order")) return "order";
@@ -1722,16 +1914,27 @@
         document.body.classList.toggle("show-order", v === "order");
         document.body.classList.toggle("show-thursday", v === "thursday");
         document.body.classList.toggle("show-receive", v === "receive");
+        document.body.classList.toggle("show-counts", v === "counts");
+        document.body.classList.toggle("show-receivedlist", v === "receivedlist");
         document.getElementById("tabGuide").setAttribute("aria-pressed", (v === "guide" || v === "order") ? "true" : "false");
-        document.getElementById("tabCount").setAttribute("aria-pressed", v === "thursday" ? "true" : "false");
-        document.getElementById("tabReceive").setAttribute("aria-pressed", v === "receive" ? "true" : "false");
-        document.getElementById("viewOrderBtn").textContent = v === "order" ? "Back to counting" : "View order";
+        document.getElementById("tabCount").setAttribute("aria-pressed", (v === "thursday" || v === "counts") ? "true" : "false");
+        document.getElementById("tabReceive").setAttribute("aria-pressed", (v === "receive" || v === "receivedlist") ? "true" : "false");
+        var btn = document.getElementById("viewOrderBtn");
+        if (v === "guide") btn.textContent = "View order";
+        else if (v === "order") btn.textContent = "Back to counting";
+        else if (v === "thursday") btn.textContent = "View counts";
+        else if (v === "counts") btn.textContent = "Back to count";
+        else if (v === "receive") btn.textContent = "View received";
+        else if (v === "receivedlist") btn.textContent = "Back to receiving";
         if (v === "order") renderOrder();
+        if (v === "counts") renderCountsList();
+        if (v === "receivedlist") renderReceivedList();
         if (v === "receive") { renderRecv(); renderRecvLog(); }
         updateSummary();
         updateCountProgress();
         updateMonthProgress();
         syncReceiveBar();
+        syncCountBar();
         window.scrollTo(0, 0);
       }
 
