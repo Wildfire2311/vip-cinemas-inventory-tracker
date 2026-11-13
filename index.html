@@ -524,7 +524,7 @@
           <div class="sup-tabs" id="guideSupTabs" role="group" aria-label="Supplier"></div>
           <p class="sup-info" id="guideSupInfo"></p>
           <div class="mode-label">Stocking for a…</div>
-          <div class="modes" role="group" aria-label="Stocking mode">
+          <div class="modes" id="stockingModes" role="group" aria-label="Stocking mode">
             <button type="button" data-mode="busy" aria-pressed="false">Busy</button>
             <button type="button" data-mode="average" aria-pressed="true">Average</button>
             <button type="button" data-mode="slow" aria-pressed="false">Slow</button>
@@ -749,6 +749,24 @@
 
       var state = { mode: "average" };
       var MODES = { busy: "Busy", average: "Average", slow: "Slow" };
+      // The stocking mode is a single source of truth shared by the order
+      // guide and the order list. It must always be one of the MODES keys:
+      // anything else (a missing value, or a stale value saved by an older
+      // version) falls back to "average" so neither view can ever show
+      // "undefined" or disagree with the other about the mode in use.
+      function validMode(m) { return !!(m && MODES[m]); }
+      function sanitizeMode() { if (!validMode(state.mode)) state.mode = "average"; }
+      function modeLabel() { sanitizeMode(); return MODES[state.mode]; }
+      // Reflect state.mode on the stocking-mode buttons only. The count
+      // period toggle (Thursday / Month-End) is a separate control and is
+      // never touched here.
+      function syncModeButtons() {
+        if (typeof modeBtns === "undefined" || !modeBtns) return;
+        modeBtns.forEach(function (x) {
+          var m = x.getAttribute("data-mode");
+          if (m) x.setAttribute("aria-pressed", m === state.mode ? "true" : "false");
+        });
+      }
       var SUPPLIER_INFO = {
         "Vistar": "Place the order at customerfirstsolutions.com",
         "ICEE": "Monthly order — email servicecall@icee.com and cc Josh; provide our address when asked",
@@ -767,6 +785,7 @@
       // records) — each clear rewrites the saved data for its own view.
       var STORE_KEY = "vipCinemasInventory.v1";
       function saveState() {
+        sanitizeMode();
         try {
           if (!window.localStorage) return;
           var data = {
@@ -812,14 +831,12 @@
           var raw = window.localStorage ? localStorage.getItem(STORE_KEY) : null;
           if (raw) data = JSON.parse(raw);
         } catch (err) { data = null; }
-        if (!data) return;
-        if (data.mode && MODES[data.mode]) {
-          state.mode = data.mode;
-          modeBtns.forEach(function (x) {
-            var m = x.getAttribute("data-mode");
-            if (m) x.setAttribute("aria-pressed", m === state.mode ? "true" : "false");
-          });
-        }
+        if (!data) { sanitizeMode(); syncModeButtons(); return; }
+        if (validMode(data.mode)) state.mode = data.mode;
+        // Whatever was saved, the mode in use from here on is a valid one
+        // and the stocking buttons show it — guide and order list agree.
+        sanitizeMode();
+        syncModeButtons();
         if (data.guideSupplier) guideSupplier = data.guideSupplier;
         if (data.recvSupplier) recvSupplier = data.recvSupplier;
         if (data.countPeriod === "month" || data.countPeriod === "thu") countPeriod = data.countPeriod;
@@ -925,6 +942,7 @@
       // Core calculation for one product under the current settings.
       // Returns {status: 'ok'|'unset', need, cases}
       function calc(p) {
+        sanitizeMode();
         var target = p[state.mode];
         if (target === null || target === undefined) return { status: "unset", need: 0 };
         var have = p.have === null ? 0 : p.have;
@@ -945,6 +963,8 @@
       }
 
       function render() {
+        sanitizeMode();
+        syncModeButtons();
         renderGuideSupTabs();
         var main = document.getElementById("catalog");
         var q = document.getElementById("search").value.trim().toLowerCase();
@@ -988,11 +1008,11 @@
           notes += '<div class="note info">Order from <b>' + esc(p.opts.supplier) + '</b>, not Vistar. No stocking targets set yet — order by eye until an admin sets them.</div>';
         }
         if (c.status === "unset" && !p.opts.supplier) {
-          notes += '<div class="note info">No ' + MODES[state.mode] + ' target set for this item yet, so it\'s left off the automatic order.</div>';
+          notes += '<div class="note info">No ' + modeLabel() + ' target set for this item yet, so it\'s left off the automatic order.</div>';
         }
         return '<div class="row" data-id="' + p.id + '">' +
           '<div class="row-top"><div><div class="pname">' + esc(p.name) + '</div>' +
-          '<div class="ptargets">Target (' + MODES[state.mode] + '): <b>' + (t === null ? "not set" : fmt(t)) + '</b>' +
+          '<div class="ptargets">Target (' + modeLabel() + '): <b>' + (t === null ? "not set" : fmt(t)) + '</b>' +
           ' · B ' + fmt(p.busy) + ' / A ' + fmt(p.average) + ' / S ' + fmt(p.slow) + '</div></div>' + badge + '</div>' +
           '<div class="inputs">' +
             '<div class="field"><label for="have-' + p.id + '">Have on hand</label>' +
@@ -1074,20 +1094,25 @@
             ? items.length + " items · " + fmt(totalUnits) + " units to order"
             : "Nothing to order yet";
           document.getElementById("barSub").textContent = items.length
-            ? "Stocking for a " + MODES[state.mode].toLowerCase() + " period"
+            ? "Stocking for a " + modeLabel().toLowerCase() + " period"
             : "Enter counts to build the order";
         }
       }
 
       function renderOrder() {
+        // The order list is always built from the same sanitised
+        // state.mode the guide is showing — never a stale or saved
+        // value of its own — so its heading and amounts match the guide.
+        sanitizeMode();
+        syncModeButtons();
         var items = orderItems();
         var body = document.getElementById("orderBody");
         var now = new Date();
         document.getElementById("orderMeta").textContent =
-          "VIP Cinemas · " + guideSupplier + " order · Stocking for: " + MODES[state.mode] + " · " +
+          "VIP Cinemas · " + guideSupplier + " order · Stocking for: " + modeLabel() + " · " +
           now.toLocaleDateString() + " " + now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
         if (!items.length) {
-          body.innerHTML = '<div class="empty">Nothing needs ordering at the ' + MODES[state.mode] +
+          body.innerHTML = '<div class="empty">Nothing needs ordering at the ' + modeLabel() +
             ' level with the counts entered.<br/>Go back and enter what you have — anything below target shows up here.</div>';
           return;
         }
@@ -1119,7 +1144,7 @@
         var suppliers = [];
         items.forEach(function (x) { if (suppliers.indexOf(effSupplier(x.p)) === -1) suppliers.push(effSupplier(x.p)); });
         var blocks = suppliers.map(function (sup) {
-          var lines = ["VIP CINEMAS — " + sup.toUpperCase() + " ORDER", "Stocking for: " + MODES[state.mode], ""];
+          var lines = ["VIP CINEMAS — " + sup.toUpperCase() + " ORDER", "Stocking for: " + modeLabel(), ""];
           var lastCat = "";
           items.filter(function (x) { return effSupplier(x.p) === sup; }).forEach(function (x) {
             if (x.p.cat !== lastCat) { lastCat = x.p.cat; lines.push(lastCat.toUpperCase()); }
@@ -1137,13 +1162,22 @@
         setTimeout(function () { t.classList.remove("show"); }, 2200);
       }
 
-      // Mode buttons
-      var modeBtns = document.querySelectorAll(".modes button");
+      // Mode buttons — ONLY the stocking-mode buttons (Busy / Average /
+      // Slow). This selector must stay scoped to #stockingModes and to
+      // buttons carrying a data-mode: the count-period toggle also uses
+      // the .modes styling, and its buttons have no data-mode, so a broad
+      // ".modes button" selector would run this handler for Thursday /
+      // Month-End clicks too and wipe state.mode to null — which made
+      // every target "undefined", zeroed the order, and persisted the
+      // bad value to the saved state.
+      var modeBtns = document.querySelectorAll("#stockingModes button[data-mode]");
       modeBtns.forEach(function (b) {
         b.addEventListener("click", function () {
-          state.mode = b.getAttribute("data-mode");
+          var m = b.getAttribute("data-mode");
+          if (!validMode(m)) return;
+          state.mode = m;
           saveState();
-          modeBtns.forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+          syncModeButtons();
           render();
         });
       });
@@ -1629,6 +1663,9 @@
       }
 
       // ---- Count period toggle (Thursday / Month-End) -----------------------
+      // Switching the count period changes ONLY the period. It must never
+      // read or write the stocking mode (state.mode) — the two controls
+      // are independent.
       var countPeriod = "thu";
       function setPeriod(per) {
         countPeriod = per;
