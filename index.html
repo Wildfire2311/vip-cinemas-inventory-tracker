@@ -444,6 +444,23 @@
       table.order tr:last-child td { border-bottom: 0; }
       table.order td.qty { text-align: right; font-weight: 700; font-family: "Barlow Condensed", sans-serif; font-size: 20px; white-space: nowrap; }
       table.order td.qty small { display: block; font-family: "Barlow", sans-serif; font-size: 12px; font-weight: 500; color: var(--ink-soft); }
+      /* Check-off lists (View counts / View received) — circle left, amount right */
+      .check-list { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
+      .check-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+      .check-row:last-child { border-bottom: 0; }
+      .check-circle {
+        flex: none; width: 38px; height: 38px; min-width: 38px; min-height: 38px;
+        border-radius: 50%; border: 2px solid var(--ink-soft); background: transparent;
+        color: transparent; display: flex; align-items: center; justify-content: center;
+        font-size: 19px; font-weight: 700; line-height: 1; cursor: pointer; padding: 0;
+      }
+      .check-row.is-crossed .check-circle { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+      .check-name { flex: 1; min-width: 0; font-size: 16px; font-weight: 500; line-height: 1.25; }
+      .check-qty { flex: none; text-align: right; font-weight: 700; font-family: "Barlow Condensed", sans-serif; font-size: 21px; line-height: 1.1; white-space: nowrap; }
+      .check-qty small { display: block; font-family: "Barlow", sans-serif; font-size: 12px; font-weight: 500; color: var(--ink-soft); white-space: normal; }
+      .check-row.is-crossed .check-name,
+      .check-row.is-crossed .check-qty { text-decoration: line-through; opacity: .55; }
+      .check-hint { color: var(--ink-soft); font-size: 14px; margin: 6px 0 0; }
       .empty {
         background: var(--surface); border: 1px dashed var(--line); border-radius: 12px;
         padding: 22px 16px; text-align: center; color: var(--ink-soft); margin-top: 16px;
@@ -608,6 +625,7 @@
       <div id="countsListView">
         <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:30px;text-transform:uppercase;margin:18px 0 0;">Counts list</h2>
         <p class="sub" id="countsMeta"></p>
+        <p class="check-hint">Tap the circle on the left to cross off an item once you've entered it. Tap again to undo. Amount for each item is on the right.</p>
         <div id="countsBody"></div>
         <div class="order-actions">
           <button type="button" class="btn primary" id="copyCounts">Copy counts</button>
@@ -618,6 +636,7 @@
       <div id="receivedListView">
         <h2 style="font-family:'Barlow Condensed',sans-serif;font-size:30px;text-transform:uppercase;margin:18px 0 0;">Received list</h2>
         <p class="sub" id="receivedMeta"></p>
+        <p class="check-hint">Tap the circle on the left to cross off an item once you've entered it. Tap again to undo. Amount for each item is on the right.</p>
         <div id="receivedBody"></div>
         <div class="order-actions">
           <button type="button" class="btn primary" id="copyReceived">Copy received</button>
@@ -1485,6 +1504,7 @@
         monthItems.forEach(function (it) {
           it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null;
           it.portions = null; it.each = null; it.bibs = null;
+          if (typeof countsChecked !== "undefined") delete countsChecked[it.id];
         });
         renderMonth();
         toast("Month-end count cleared");
@@ -1753,6 +1773,32 @@
       document.getElementById("tabReceive").addEventListener("click", function () { setView("receive"); });
       document.getElementById("recvSearch").addEventListener("input", renderRecv);
 
+      // ---- Check-off state (session-only, resets on reload) ---------------
+      var countsChecked = {};
+      var receivedChecked = {};
+      function checkRowHtml(key, name, qty, sub, crossedMap) {
+        var crossed = !!crossedMap[key];
+        return '<div class="check-row' + (crossed ? ' is-crossed' : '') + '">' +
+          '<button type="button" class="check-circle" data-check-key="' + esc(key) + '" aria-pressed="' + (crossed ? 'true' : 'false') + '" aria-label="Cross off ' + esc(name) + '">' + (crossed ? '✓' : '') + '</button>' +
+          '<span class="check-name">' + esc(name) + '</span>' +
+          '<span class="check-qty">' + qty + '<small>' + esc(sub) + '</small></span></div>';
+      }
+      function bindCheckList(container, crossedMap) {
+        var btns = container.querySelectorAll('.check-circle');
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].addEventListener('click', function (e) {
+            var btn = e.currentTarget;
+            var key = btn.getAttribute('data-check-key');
+            if (crossedMap[key]) delete crossedMap[key]; else crossedMap[key] = true;
+            var crossed = !!crossedMap[key];
+            var row = btn.closest('.check-row');
+            if (row) row.classList.toggle('is-crossed', crossed);
+            btn.setAttribute('aria-pressed', crossed ? 'true' : 'false');
+            btn.textContent = crossed ? '✓' : '';
+          });
+        }
+      }
+
       // ---- Counts list (detail for the Count tab) -------------------------
       function renderCountsList() {
         var body = document.getElementById("countsBody");
@@ -1771,16 +1817,16 @@
           MONTH_CATS.forEach(function (cat) {
             var rows = monthItems.filter(function (it) { return it.cat === cat.name && monthCalc(it).counted; });
             if (!rows.length) return;
-            html += '<div class="order-cat">' + esc(cat.name) + '</div><table class="order">';
+            html += '<div class="order-cat">' + esc(cat.name) + '</div><div class="check-list">';
             rows.forEach(function (it) {
               var c = monthCalc(it);
               var qty, sub;
               if (it.kind === "bib") { qty = fmt(c.total); sub = (c.total === 1 ? "BIB" : "BIBs") + " · " + fmt(c.gallons) + " gal"; }
               else if (it.kind === "hot") { qty = fmt(c.total); sub = "portions · " + fmt(c.cases) + " cases"; }
               else { qty = fmt(c.total); sub = "eaches · " + fmt(c.cases) + " cases"; }
-              html += "<tr><td>" + esc(it.name) + "</td><td class='qty'>" + qty + "<small>" + esc(sub) + "</small></td></tr>";
+              html += checkRowHtml(it.id, it.name, qty, sub, countsChecked);
             });
-            html += "</table>";
+            html += "</div>";
           });
         } else {
           var countedT = countItems.filter(function (it) { return countCalc(it).counted; });
@@ -1791,17 +1837,17 @@
           COUNT_CATS.forEach(function (cat) {
             var rows = countItems.filter(function (it) { return it.cat === cat.name && countCalc(it).counted; });
             if (!rows.length) return;
-            html += '<div class="order-cat">' + esc(cat.name) + '</div><table class="order">';
+            html += '<div class="order-cat">' + esc(cat.name) + '</div><div class="check-list">';
             rows.forEach(function (it) {
               var c = countCalc(it);
               var unit = it.type === "hot" ? "portions" : "eaches";
-              html += "<tr><td>" + esc(it.name) + "</td><td class='qty'>" + fmt(c.total) +
-                "<small>" + unit + " · " + fmt(c.cases) + " cases</small></td></tr>";
+              html += checkRowHtml(it.id, it.name, fmt(c.total), unit + " · " + fmt(c.cases) + " cases", countsChecked);
             });
-            html += "</table>";
+            html += "</div>";
           });
         }
         body.innerHTML = html;
+        bindCheckList(body, countsChecked);
       }
 
       function countsText() {
@@ -1852,15 +1898,16 @@
         CATS.forEach(function (cat) {
           var rows = recvItems.filter(function (r) { return r.cat === cat.name && recvTotalFor(r) > 0; });
           if (!rows.length) return;
-          html += '<div class="order-cat">' + esc(cat.name) + '</div><table class="order">';
+          html += '<div class="order-cat">' + esc(cat.name) + '</div><div class="check-list">';
           rows.forEach(function (r) {
             var t = recvTotalFor(r);
             var unit = r.kind === "bib" ? (t === 1 ? "BIB received" : "BIBs received") : (t === 1 ? "case received" : "cases received");
-            html += "<tr><td>" + esc(r.name) + "</td><td class='qty'>" + fmt(t) + "<small>" + unit + "</small></td></tr>";
+            html += checkRowHtml(r.pid, r.name, fmt(t), unit, receivedChecked);
           });
-          html += "</table>";
+          html += "</div>";
         });
         body.innerHTML = html;
+        bindCheckList(body, receivedChecked);
       }
 
       function receivedText() {
@@ -1944,6 +1991,7 @@
       document.getElementById("clearCount").addEventListener("click", function () {
         countItems.forEach(function (it) {
           it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null; it.portions = null;
+          delete countsChecked[it.id];
         });
         renderCount();
         toast("Thursday count cleared");
