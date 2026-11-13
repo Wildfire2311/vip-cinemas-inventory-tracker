@@ -75,7 +75,7 @@
         }
       }
       * { box-sizing: border-box; }
-      html { -webkit-text-size-adjust: 100%; scroll-padding-bottom: 110px; scroll-padding-top: 190px; }
+      html { -webkit-text-size-adjust: 100%; scroll-padding-bottom: 150px; scroll-padding-top: 190px; }
       body {
         margin: 0;
         font-family: "Barlow", system-ui, sans-serif;
@@ -264,7 +264,7 @@
         margin-bottom: 3px;
       }
       .stepper { display: flex; align-items: stretch; gap: 6px; }
-      .stepper button, .stepper input { scroll-margin-bottom: 110px; scroll-margin-top: 200px; }
+      .stepper button, .stepper input { scroll-margin-bottom: 150px; scroll-margin-top: 200px; }
       .stepper button {
         flex: none;
         width: 44px;
@@ -641,7 +641,7 @@
         { name: "Hot Food", items: [
           ["Pizza", 4, 3, 2], ["Chicken Tenders", 4, 3, 2], ["Waffle Fries", 3, 3, 2],
           ["Mozzarella Sticks", 4, 3, 2], ["Hot dogs", 4, 3, 2],
-          ["Hot Dog Buns", null, null, null, { supplier: "Walmart" }]
+          ["Hot Dog Buns", null, null, null, { noSupplier: true }]
         ]},
         { name: "Sauces", items: [
           ["BBQ Sauce", 3, 2, 1], ["Marinera Sauce", 3, 2, 1], ["Ranch Sauce", 3, 2, 1],
@@ -699,17 +699,19 @@
       var SUPPLIER_INFO = {
         "Vistar": "Place the order at customerfirstsolutions.com",
         "ICEE": "Monthly order — email servicecall@icee.com and cc Josh; provide our address when asked",
-        "Pepsi": "Input all information on the Pepsi Portal",
-        "Walmart": "Order from Walmart, not Vistar"
+        "Pepsi": "Input all information on the Pepsi Portal"
       };
-      var SUPPLIER_ORDER = ["Vistar", "ICEE", "Pepsi", "Walmart", "Other"];
+      var SUPPLIER_ORDER = ["Vistar", "ICEE", "Pepsi", "Other"];
       var guideSupplier = "Vistar";
       var recvSupplier = "Vistar";
 
-      // A product's supplier: a per-product supplier (e.g. Hot Dog Buns
-      // from Walmart) wins over its category's supplier.
+      // A product's supplier: a per-product supplier wins over its
+      // category's supplier; a product marked noSupplier (Hot Dog Buns)
+      // has no supplier and falls under "Other".
       function effSupplier(p) {
-        return (p.opts && p.opts.supplier) || p.supplier || "Other";
+        if (p.opts && p.opts.supplier) return p.opts.supplier;
+        if (p.opts && p.opts.noSupplier) return "Other";
+        return p.supplier || "Other";
       }
 
       // Build the supplier tab row for one view: only suppliers that
@@ -1512,7 +1514,7 @@
         }
         if (!spec) spec = { kind: "cases" };
         recvItems.push({
-          pid: p.id, name: p.name, cat: p.cat, supplier: (p.opts && p.opts.supplier) || p.supplier, kind: spec.kind,
+          pid: p.id, name: p.name, cat: p.cat, supplier: effSupplier(p), kind: spec.kind,
           perBox: spec.perBox, perSleeve: spec.perSleeve, noSleeve: !!spec.noSleeve,
           gal: spec.gal, divisor: spec.divisor || null, portionsPer: spec.portionsPer || null,
           convNote: spec.convNote || null,
