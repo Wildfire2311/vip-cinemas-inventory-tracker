@@ -581,15 +581,15 @@
             <span class="chip"><strong id="cntLeft">62</strong> still to count</span>
           </div>
           <div class="summary" id="monthProgress">
-            <span class="chip"><strong id="mcntDone">0</strong> of <span id="mcntTotal">97</span> counted</span>
-            <span class="chip"><strong id="mcntLeft">97</strong> still to count</span>
+            <span class="chip"><strong id="mcntDone">0</strong> of <span id="mcntTotal">93</span> counted</span>
+            <span class="chip"><strong id="mcntLeft">93</strong> still to count</span>
           </div>
           <input class="search" id="countSearch" type="search" placeholder="Search count sheet…" aria-label="Search count sheet" />
         </div>
 
         <p class="sub" id="thuNote" style="margin-top:14px;">Count in individual pieces — hot food in portions — using the count sheet's own names. Each total is shown here in its own units and converted to cases for reference. Counts stay on this page only — they don't change the order guide. Items marked count only aren't on any order guide; they're counted and totaled here only.</p>
 
-        <p class="sub" id="monthNote" style="margin-top:14px;">Month-end count, done once a month: the sellable count plus the non-sellable sheet — BIB syrups and supplies — all 97 rows. Kept separate from the Thursday count, and from the order guide — totals stay on this page only. BIBs are counted in whole BIBs only — a half-used BIB isn't counted. Items marked count only have no order target.</p>
+        <p class="sub" id="monthNote" style="margin-top:14px;">Month-end count, done once a month: the sellable count plus the non-sellable sheet — BIB syrups and supplies — all 93 rows. Kept separate from the Thursday count, and from the order guide — totals stay on this page only. BIBs are counted in whole BIBs only — a half-used BIB isn't counted. Items marked count only have no order target.</p>
 
         <main id="countCatalog"></main>
         <main id="monthCatalog"></main>
@@ -1535,8 +1535,8 @@
       // ---- Month-end count --------------------------------------------------
       // The month-end count is the sellable sheet (the same 62 rows as the
       // Thursday count, but with its own separate counts) plus the
-      // non-sellable sheet below — 18 BIB syrups and 17 supplies, in sheet
-      // order — for 97 rows total, counted once a month.
+      // non-sellable sheet below — 14 BIB syrups and 17 supplies, in sheet
+      // order — for 93 rows total, counted once a month.
       // BIB item = [name, gallons per BIB, orderGuideName|null].
       // Supply item = [name, perBox, perSleeve, orderGuideName|null, extras?].
       var MONTH_CATS = COUNT_CATS.concat([
@@ -1546,11 +1546,9 @@
           ["Pepsi BIB", 5, "Pepsi"], ["Diet Pepsi BIB", 3, "Diet Pepsi"],
           ["Mountain Dew BIB", 5, "Mountain Dew"], ["Starry BIB", 3, "Starry"],
           ["Lemonade BIB", 3, "Pink Lemonade"], ["Orange BIB", 3, "Orange Crush"],
-          ["Caffiene Free Diet Pepsi BIB", 3, null], ["Code Red BIB", 3, null],
           ["Root Beer BIB", 3, "Mug Root Beer"], ["Wild Cherry BIB", 3, "Cherry Pepsi"],
           ["Diet Dew BIB", 3, "Diet Mountain Dew"], ["Raspberry Tea BIB", 3, "Brisk Raspberry Tea"],
-          ["Pepsi Zero BIB", 3, "Pepsi Zero"], ["Unsweet Tea BIB", 3, null],
-          ["Blue FCB BIB", 5, "Blue Raspberry ICEE"], ["Mountain Dew FCB BIB", 3, null],
+          ["Pepsi Zero BIB", 3, "Pepsi Zero"], ["Blue FCB BIB", 5, "Blue Raspberry ICEE"],
           ["Red FCB BIB", 5, "Cherry ICEE"], ["Pepsi ICEE BIB", 3, "Pepsi ICEE"]
         ]},
         { name: "Non-sellable — Supplies", type: "supply",
@@ -1761,7 +1759,7 @@
       document.getElementById("perThu").addEventListener("click", function () { setPeriod("thu"); });
       document.getElementById("perMonth").addEventListener("click", function () { setPeriod("month"); });
       document.getElementById("clearMonth").addEventListener("click", function () {
-        askClear("Clear month-end count?", "This will clear the <b>month-end count</b> — all 97 rows of the sellable and non-sellable count. This can't be undone.", function () {
+        askClear("Clear month-end count?", "This will clear the <b>month-end count</b> — all 93 rows of the sellable and non-sellable count. This can't be undone.", function () {
           monthItems.forEach(function (it) {
             it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null;
             it.portions = null; it.each = null; it.bibs = null;
