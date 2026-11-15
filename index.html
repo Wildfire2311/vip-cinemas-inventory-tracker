@@ -577,8 +577,8 @@
             <button type="button" id="perMonth" aria-pressed="false">Month-End</button>
           </div>
           <div class="summary" id="thuProgress">
-            <span class="chip"><strong id="cntDone">0</strong> of <span id="cntTotal">62</span> counted</span>
-            <span class="chip"><strong id="cntLeft">62</strong> still to count</span>
+            <span class="chip"><strong id="cntDone">0</strong> of <span id="cntTotal">63</span> counted</span>
+            <span class="chip"><strong id="cntLeft">63</strong> still to count</span>
           </div>
           <div class="summary" id="monthProgress">
             <span class="chip"><strong id="mcntDone">0</strong> of <span id="mcntTotal">93</span> counted</span>
@@ -1300,7 +1300,7 @@
       });
 
       // ---- Thursday count sheet -------------------------------------------
-      // All 62 rows in sheet order, with the sheet's own item names.
+      // All 63 rows in sheet order, with the sheet's own item names.
       // Item = [name, perBox, perSleeve, orderGuideName]. A 4th entry of null
       // means count-only (no order-guide entry); when the 4th entry is absent
       // the order-guide name matches the count-sheet name. Hot food uses
@@ -1339,9 +1339,10 @@
           ["Mac N Cheese Bites", 24, 6, "Mac N Cheese Bites"], ["Mini Tacos", 42, 10.5, "Mini Tacos"],
           ["Fried Pickles", 32, 16, "Fried Pickles"], ["Waffle Fries", 63, 10.5],
           ["Nacho Chips", 28, 28, "Tostitos Nachos"], ["Hot Dogs (Nathans)", 50, 2, "Hot dogs"],
-          ["Pretzel (biites)", 19.5, 19.5, "Pretzel Bites"], ["Pizza", 1, 1],
+          ["Pretzel (biites)", 19.5, 19.5, "Pretzel Bites"], ["Pizza", 24, 6],
           ["Mini Corn Dog", 17, 8.5, "Mini Corn Dogs"], ["POPPERS", 27.5, 7, "POPPERS"],
-          ["PRETZEL STICKS", 24, 24, "Pretzel Sticks"]
+          ["PRETZEL STICKS", 24, 24, "Pretzel Sticks"],
+          ["Cheese Sauce", 140, 35, "Tostitos Cheese"]
         ]},
         { name: "Paper Products", type: "each",
           note: "Counted in individual pieces: boxes × per box + sleeves × per sleeve + stand + misc. Cup and tub sizes follow the ounce order on the order guide (smallest ounces = smallest size).",
@@ -1533,7 +1534,7 @@
       }
 
       // ---- Month-end count --------------------------------------------------
-      // The month-end count is the sellable sheet (the same 62 rows as the
+      // The month-end count is the sellable sheet (the same 63 rows as the
       // Thursday count, but with its own separate counts) plus the
       // non-sellable sheet below — 14 BIB syrups and 17 supplies, in sheet
       // order — for 93 rows total, counted once a month.
@@ -1556,13 +1557,12 @@
           items: [
           ["Popcorn Seed", 1, 1, "Popcorn Premium Platinum"], ["Popping Oil", 1, 1, "SunGlo Popping Oil Canola"],
           ["Butter Topping (by each)", 1, 1, "Lou Ana Topping Butter", { divisor: 1, conv: "Counted by the tub · 1 tub = 1 case" }],
-          ["Cheese (4 bags per box)", 4, 1, "Tostitos Cheese", { portionsPer: 35, conv: "4 bags per box · 35 portions per bag · 140 portions per box" }],
           ["Jalapeno Peppers", 4, 1, "Ricos Jalapenos"],
           ["KRN - Kettle Corn", 6, 1, "Kettle Salt"], ["KRN - Nacho Cheese", 6, 1, "Nacho Cheddar Salt"],
           ["KRN - Ranch", 6, 1, null], ["KRN - White Cheddar", 6, 1, "White Cheddar Salt"],
           ["KRN - Parm Garlic", 6, 1, "Garlic Parmesan Salt"], ["Premium Salt", 6, 1, null],
-          ["Flavacol Salt", 12, 1, "Flavacol"], ["Portion Lids", 1, 1, "2oz Dart Solo Lids"],
-          ["Portion Cups", 1, 1, "2oz Dart Solo Cups"], ["Frying Oil", 1, 1, null],
+          ["Flavacol Salt", 12, 1, "Flavacol"], ["Portion Lids", 1, 1, "2oz Dart Solo Lids", { noSleeve: true, conv: "Counted by the case" }],
+          ["Portion Cups", 1, 1, "2oz Dart Solo Cups", { noSleeve: true, conv: "Counted by the case" }], ["Frying Oil", 1, 1, null],
           ["Paper Food Tray - 3 lb", 500, 125, "16oz Boats"], ["Pizza Box", 192, 16, null]
         ]}
       ]);
@@ -1583,6 +1583,7 @@
               m.divisor = it[4].divisor || null;
               m.portionsPer = it[4].portionsPer || null;
               m.convNote = it[4].conv || null;
+              m.noSleeve = !!it[4].noSleeve;
             }
           }
           monthItems.push(m);
@@ -1595,8 +1596,9 @@
           return { counted: true, total: it.bibs, gallons: it.bibs * it.gal, have: it.bibs };
         }
         if (it.kind === "supply") {
-          if (![it.boxes, it.sleeves, it.each].some(function (v) { return v !== null && v > 0; })) return { counted: false, total: 0, have: 0 };
-          var total = (it.boxes || 0) * it.perBox + (it.sleeves || 0) * it.perSleeve + (it.each || 0);
+          var supplyVals = it.noSleeve ? [it.boxes, it.each] : [it.boxes, it.sleeves, it.each];
+          if (!supplyVals.some(function (v) { return v !== null && v > 0; })) return { counted: false, total: 0, have: 0 };
+          var total = (it.boxes || 0) * it.perBox + (it.noSleeve ? 0 : (it.sleeves || 0) * it.perSleeve) + (it.each || 0);
           var cases = total / (it.divisor || it.perBox);
           return { counted: true, total: total, cases: cases, have: cases };
         }
@@ -1629,8 +1631,13 @@
               " — counted here only." + "</div>";
           }
         } else if (it.kind === "supply") {
-          conv = "Per box " + fmt(it.perBox) + " · Per sleeve " + fmt(it.perSleeve) + (it.convNote ? " · " + esc(it.convNote) : "") + map;
-          fields = countField(it, "boxes", "Boxes") + countField(it, "sleeves", "Sleeves") + countField(it, "each", "Each");
+          if (it.noSleeve) {
+            conv = "Per box " + fmt(it.perBox) + (it.convNote ? " · " + esc(it.convNote) : "") + map;
+            fields = countField(it, "boxes", "Boxes") + countField(it, "each", "Each");
+          } else {
+            conv = "Per box " + fmt(it.perBox) + " · Per sleeve " + fmt(it.perSleeve) + (it.convNote ? " · " + esc(it.convNote) : "") + map;
+            fields = countField(it, "boxes", "Boxes") + countField(it, "sleeves", "Sleeves") + countField(it, "each", "Each");
+          }
           gridCls = "f3";
           if (c.counted) {
             total = '<div class="ctotal">Total: <b>' + fmt(c.total) + " eaches</b>" +
@@ -1780,6 +1787,15 @@
       // session log plus a per-product received total — and never change
       // the order guide or the counts. Saved on this device like
       // everything else; cleared only by Clear received records.
+      var UNITS_PER_CASE = {
+        "BBQ Sauce": 60,
+        "Marinera Sauce": 60,
+        "Ranch Sauce": 100,
+        "Buffalo Sauce": 60,
+        "Honey Mustard Sauce": 60,
+        "Heinz Ketchup (500)": 1000,
+        "Heinz Relish (200)": 200
+      };
       var recvItems = [];
       products.forEach(function (p) {
         var spec = null, src = null, i;
@@ -1795,11 +1811,14 @@
           }
           if (src) {
             if (src.kind === "bib") spec = { kind: "bib", gal: src.gal };
-            else if (src.kind === "supply") spec = { kind: "supply", perBox: src.perBox, perSleeve: src.perSleeve, divisor: src.divisor, portionsPer: src.portionsPer, convNote: src.convNote };
+            else if (src.kind === "supply") spec = { kind: "supply", perBox: src.perBox, perSleeve: src.perSleeve, divisor: src.divisor, portionsPer: src.portionsPer, convNote: src.convNote, noSleeve: src.noSleeve };
             else spec = { kind: src.kind === "hot" ? "hot" : "each", perBox: src.perBox, perSleeve: src.perSleeve, noSleeve: src.noSleeve };
           }
         }
-        if (!spec) spec = { kind: "cases" };
+        if (!spec) {
+          if (Object.prototype.hasOwnProperty.call(UNITS_PER_CASE, p.name)) spec = { kind: "units", perBox: UNITS_PER_CASE[p.name] };
+          else spec = { kind: "cases" };
+        }
         recvItems.push({
           pid: p.id, name: p.name, cat: p.cat, supplier: effSupplier(p), kind: spec.kind,
           perBox: spec.perBox, perSleeve: spec.perSleeve, noSleeve: !!spec.noSleeve,
@@ -1830,16 +1849,24 @@
           var cq = r.casesQty || 0;
           return { entered: true, delta: cq, desc: fmt(cq) + (cq === 1 ? " case" : " cases") };
         }
+        if (r.kind === "units") {
+          var ub = r.boxes || 0, ue = r.each || 0;
+          var unitsTotal = ub * r.perBox + ue;
+          var uparts = [];
+          if (ub) uparts.push(fmt(ub) + (ub === 1 ? " box" : " boxes"));
+          if (ue) uparts.push(fmt(ue) + (ue === 1 ? " unit" : " units"));
+          return { entered: true, delta: unitsTotal, desc: uparts.join(" + ") };
+        }
         var parts = [], total, delta;
         if (r.boxes) parts.push(fmt(r.boxes) + (r.boxes === 1 ? " box" : " boxes"));
-        if (r.sleeves) parts.push(fmt(r.sleeves) + (r.sleeves === 1 ? " sleeve" : " sleeves"));
+        if (r.sleeves && !r.noSleeve) parts.push(fmt(r.sleeves) + (r.sleeves === 1 ? " sleeve" : " sleeves"));
         if (r.kind === "hot") {
           if (r.portions) parts.push(fmt(r.portions) + " portions");
           total = (r.boxes || 0) * r.perBox + (r.sleeves || 0) * r.perSleeve + (r.portions || 0);
           delta = total / r.perBox;
         } else if (r.kind === "supply") {
           if (r.each) parts.push(fmt(r.each) + " each");
-          total = (r.boxes || 0) * r.perBox + (r.sleeves || 0) * r.perSleeve + (r.each || 0);
+          total = (r.boxes || 0) * r.perBox + (r.noSleeve ? 0 : (r.sleeves || 0) * r.perSleeve) + (r.each || 0);
           delta = total / (r.divisor || r.perBox);
         } else {
           if (r.stand) parts.push(fmt(r.stand) + " stand");
@@ -1878,8 +1905,17 @@
           fields = recvField(r, "bibs", "Whole BIBs received");
           gridCls = "f3";
         } else if (r.kind === "supply") {
-          conv = "Per box " + fmt(r.perBox) + " · Per sleeve " + fmt(r.perSleeve) + (r.convNote ? " · " + esc(r.convNote) : "");
-          fields = recvField(r, "boxes", "Boxes received") + recvField(r, "sleeves", "Sleeves received") + recvField(r, "each", "Each received");
+          if (r.noSleeve) {
+            conv = "Per box " + fmt(r.perBox) + (r.convNote ? " · " + esc(r.convNote) : "");
+            fields = recvField(r, "boxes", "Boxes received") + recvField(r, "each", "Each received");
+          } else {
+            conv = "Per box " + fmt(r.perBox) + " · Per sleeve " + fmt(r.perSleeve) + (r.convNote ? " · " + esc(r.convNote) : "");
+            fields = recvField(r, "boxes", "Boxes received") + recvField(r, "sleeves", "Sleeves received") + recvField(r, "each", "Each received");
+          }
+          gridCls = "f3";
+        } else if (r.kind === "units") {
+          conv = fmt(r.perBox) + " units per box · received by the unit";
+          fields = recvField(r, "boxes", "Boxes received") + recvField(r, "each", "Loose units received");
           gridCls = "f3";
         } else if (r.kind === "cases") {
           conv = "No count-sheet row — received in cases";
@@ -1895,7 +1931,7 @@
           gridCls = "f4";
         }
         var rTotal = recvTotalFor(r);
-        var rUnit = r.kind === "bib" ? "BIBs received" : "Cases received";
+        var rUnit = r.kind === "bib" ? "BIBs received" : (r.kind === "units" ? "Units received" : "Cases received");
         var rBadge = rTotal > 0
           ? '<div class="need-badge"><span class="n">' + fmt(rTotal) + '</span><span class="l">' + rUnit + '</span></div>'
           : '<div class="need-badge unset"><span class="n">None</span><span class="l">Received yet</span></div>';
@@ -2001,7 +2037,7 @@
         renderRecvLog();
         updateRecvSummary();
         syncReceiveBar();
-        toast(r.name + " recorded — received total is now " + fmt(recvTotalFor(r)) + (r.kind === "bib" ? (recvTotalFor(r) === 1 ? " BIB" : " BIBs") : (recvTotalFor(r) === 1 ? " case" : " cases")));
+        toast(r.name + " recorded — received total is now " + fmt(recvTotalFor(r)) + (r.kind === "bib" ? (recvTotalFor(r) === 1 ? " BIB" : " BIBs") : (r.kind === "units" ? (recvTotalFor(r) === 1 ? " unit" : " units") : (recvTotalFor(r) === 1 ? " case" : " cases"))));
       }
 
       function renderRecvLog() {
@@ -2010,11 +2046,12 @@
         wrap.classList.toggle("hidden", recvLog.length === 0);
         box.innerHTML = recvLog.map(function (e) {
           var detail = e.desc;
-          if (e.kind !== "bib" && e.kind !== "cases") detail += " = +" + fmt(e.delta) + " " + caseWord(e.delta);
+          if (e.kind === "units") detail += " = +" + fmt(e.delta) + (e.delta === 1 ? " unit" : " units");
+          else if (e.kind !== "bib" && e.kind !== "cases") detail += " = +" + fmt(e.delta) + " " + caseWord(e.delta);
           detail += " · " + e.time.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
           return '<div class="log-row"><div><div class="pname">' + esc(e.name) + '</div>' +
             '<div class="ptargets">' + esc(detail) + '</div></div>' +
-            '<div class="need-badge"><span class="n">+' + fmt(e.delta) + '</span><span class="l">' + (e.kind === "bib" ? "BIBs in" : "Cases in") + '</span></div></div>';
+            '<div class="need-badge"><span class="n">+' + fmt(e.delta) + '</span><span class="l">' + (e.kind === "bib" ? "BIBs in" : (e.kind === "units" ? "Units in" : "Cases in")) + '</span></div></div>';
         }).join("");
       }
 
@@ -2187,7 +2224,7 @@
           html += '<div class="order-cat">' + esc(cat.name) + '</div><div class="check-list">';
           rows.forEach(function (r) {
             var t = recvTotalFor(r);
-            var unit = r.kind === "bib" ? (t === 1 ? "BIB received" : "BIBs received") : (t === 1 ? "case received" : "cases received");
+            var unit = r.kind === "bib" ? (t === 1 ? "BIB received" : "BIBs received") : (r.kind === "units" ? (t === 1 ? "unit received" : "units received") : (t === 1 ? "case received" : "cases received"));
             html += checkRowHtml(r.pid, r.name, fmt(t), unit, receivedChecked);
           });
           html += "</div>";
@@ -2204,7 +2241,7 @@
           lines.push(cat.name.toUpperCase());
           rows.forEach(function (r) {
             var t = recvTotalFor(r);
-            lines.push("  " + r.name + " — " + fmt(t) + (r.kind === "bib" ? (t === 1 ? " BIB" : " BIBs") : (t === 1 ? " case" : " cases")));
+            lines.push("  " + r.name + " — " + fmt(t) + (r.kind === "bib" ? (t === 1 ? " BIB" : " BIBs") : (r.kind === "units" ? (t === 1 ? " unit" : " units") : (t === 1 ? " case" : " cases"))));
           });
           lines.push("");
         });
@@ -2275,7 +2312,7 @@
         if (countPeriod === "month") renderMonth(); else renderCount();
       });
       document.getElementById("clearCount").addEventListener("click", function () {
-        askClear("Clear Thursday count?", "This will clear the <b>Thursday count</b> — all 62 rows of this count sheet. This can't be undone.", function () {
+        askClear("Clear Thursday count?", "This will clear the <b>Thursday count</b> — all 63 rows of this count sheet. This can't be undone.", function () {
           countItems.forEach(function (it) {
             it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null; it.portions = null;
             delete countsChecked[it.id];
