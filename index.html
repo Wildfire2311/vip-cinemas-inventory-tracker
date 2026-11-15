@@ -581,15 +581,15 @@
             <span class="chip"><strong id="cntLeft">63</strong> still to count</span>
           </div>
           <div class="summary" id="monthProgress">
-            <span class="chip"><strong id="mcntDone">0</strong> of <span id="mcntTotal">93</span> counted</span>
-            <span class="chip"><strong id="mcntLeft">93</strong> still to count</span>
+            <span class="chip"><strong id="mcntDone">0</strong> of <span id="mcntTotal">94</span> counted</span>
+            <span class="chip"><strong id="mcntLeft">94</strong> still to count</span>
           </div>
           <input class="search" id="countSearch" type="search" placeholder="Search count sheet…" aria-label="Search count sheet" />
         </div>
 
         <p class="sub" id="thuNote" style="margin-top:14px;">Count in individual pieces — hot food in portions — using the count sheet's own names. Each total is shown here in its own units and converted to cases for reference. Counts stay on this page only — they don't change the order guide. Items marked count only aren't on any order guide; they're counted and totaled here only.</p>
 
-        <p class="sub" id="monthNote" style="margin-top:14px;">Month-end count, done once a month: the sellable count plus the non-sellable sheet — BIB syrups and supplies — all 93 rows. Kept separate from the Thursday count, and from the order guide — totals stay on this page only. BIBs are counted in whole BIBs only — a half-used BIB isn't counted. Items marked count only have no order target.</p>
+        <p class="sub" id="monthNote" style="margin-top:14px;">Month-end count, done once a month: the sellable count plus the non-sellable sheet — BIB syrups and supplies — all 94 rows. Kept separate from the Thursday count, and from the order guide — totals stay on this page only. BIBs are counted in whole BIBs only — a half-used BIB isn't counted. Items marked count only have no order target.</p>
 
         <main id="countCatalog"></main>
         <main id="monthCatalog"></main>
@@ -712,7 +712,7 @@
         { name: "Foods / Condiments", items: [
           ["Nacho Chips", 4, 3, 2], ["Sauce - Cheese", 3, 2, 2],
           ["Jalapeno Peppers", 1, 1, 0.5], ["Heinz Ketchup (500)", 1, 1, 0.5], ["Heinz Mustard (200)", 1, 1, 0.5],
-          ["Relish Packets", 1, 1, 0.5], ["Flavacol Salt", 2, 2, 1], ["Snow Salt", 1, 1, 1],
+          ["Relish Packets", 1, 1, 0.5], ["Flavacol Salt", 2, 2, 1],
           ["KRN - Parm Garlic", 1, 1, 0.5], ["KRN - Kettle Corn", 1, 1, 0.5], ["KRN - White Cheddar", 1, 1, 0.5],
           ["KRN - Nacho Cheese", 1, 1, 0.5]
         ]},
@@ -765,7 +765,7 @@
         { name: "Cups & Lids", supplier: "Pepsi", items: [
           ["Kid's Drink Cups", 5, 4, 3], ["Small Drink Cups", 5, 4, 3], ["Medium Drink Cups", 5, 4, 3],
           ["Large Drink Cups", 5, 4, 3], ["Small Pop Lids", 6, 5, 4], ["Medium Drink Lids", 5, 4, 3],
-          ["Large Drink Lids", 5, 4, 3], ["Backup CO2 Tanks", 4, 4, 4]
+          ["Large Drink Lids", 5, 4, 3]
         ]}
       ];
 
@@ -1537,8 +1537,8 @@
       // ---- Month-end count --------------------------------------------------
       // The month-end count is the sellable sheet (the same 63 rows as the
       // Thursday count, but with its own separate counts) plus the
-      // non-sellable sheet below — 14 BIB syrups and 16 supplies, in sheet
-      // order — for 93 rows total, counted once a month.
+      // non-sellable sheet below — 15 BIB syrups and 16 supplies, in sheet
+      // order — for 94 rows total, counted once a month.
       // BIB item = [name, gallons per BIB, orderGuideName|null].
       // Supply item = [name, perBox, perSleeve, orderGuideName|null, extras?].
       var MONTH_CATS = COUNT_CATS.concat([
@@ -1551,7 +1551,8 @@
           ["Root Beer BIB", 3, "Root Beer BIB"], ["Wild Cherry BIB", 3, "Wild Cherry BIB"],
           ["Diet Mountain Dew BIB", 3, "Diet Mountain Dew BIB"], ["Raspberry Tea BIB", 3, "Raspberry Tea BIB"],
           ["Pepsi Zero BIB", 3, "Pepsi Zero"], ["Blue FCB BIB", 5, "Blue FCB BIB"],
-          ["Red FCB BIB", 5, "Red FCB BIB"], ["Pepsi ICEE BiB", 3, "Pepsi ICEE BiB"]
+          ["Red FCB BIB", 5, "Red FCB BIB"], ["Pepsi ICEE BiB", 3, "Pepsi ICEE BiB"],
+          ["Fruit Punch BIB", 3, null]
         ]},
         { name: "Non-sellable — Supplies", type: "supply",
           note: "Counted in eaches like the Thursday rows: boxes × per box + sleeves × per sleeve + each, converted to cases for reference.",
@@ -1767,7 +1768,7 @@
       document.getElementById("perThu").addEventListener("click", function () { setPeriod("thu"); });
       document.getElementById("perMonth").addEventListener("click", function () { setPeriod("month"); });
       document.getElementById("clearMonth").addEventListener("click", function () {
-        askClear("Clear month-end count?", "This will clear the <b>month-end count</b> — all 93 rows of the sellable and non-sellable count. This can't be undone.", function () {
+        askClear("Clear month-end count?", "This will clear the <b>month-end count</b> — all 94 rows of the sellable and non-sellable count. This can't be undone.", function () {
           monthItems.forEach(function (it) {
             it.boxes = null; it.sleeves = null; it.stand = null; it.misc = null;
             it.portions = null; it.each = null; it.bibs = null;
