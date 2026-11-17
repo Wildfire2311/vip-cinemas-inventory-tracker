@@ -818,6 +818,7 @@
       // records) — each clear rewrites the saved data for its own view.
       var STORE_KEY = "vipCinemasInventory.v1";
       var recvUnitsMigrated = false;
+      var recvHotMigrated = false;
       function saveState() {
         sanitizeMode();
         try {
@@ -831,6 +832,7 @@
             have: {}, counts: {}, month: {}, recvPending: {},
             recvLog: recvLog,
             recvUnitsMigrated: recvUnitsMigrated,
+            recvHotMigrated: recvHotMigrated,
             countsChecked: countsChecked,
             receivedChecked: receivedChecked,
             orderChecked: orderChecked
@@ -869,7 +871,7 @@
           var raw = window.localStorage ? localStorage.getItem(STORE_KEY) : null;
           if (raw) data = JSON.parse(raw);
         } catch (err) { data = null; }
-        if (!data) { recvUnitsMigrated = true; sanitizeMode(); syncModeButtons(); return; }
+        if (!data) { recvUnitsMigrated = true; recvHotMigrated = true; sanitizeMode(); syncModeButtons(); return; }
         if (validMode(data.mode)) state.mode = data.mode;
         // Whatever was saved, the mode in use from here on is a valid one
         // and the stocking buttons show it — guide and order list agree.
@@ -949,6 +951,26 @@
           saveState();
         } else {
           recvUnitsMigrated = true;
+        }
+        // One-time migration: log entries recorded before the "hot"
+        // fix have case-denominated deltas (e.g. 1 box of Nacho Chips
+        // was stored as 1, meaning 1 case). Convert each "hot" entry
+        // to portions by multiplying by its product's perBox.
+        // Runs exactly once — separate flag from recvUnitsMigrated,
+        // since that flag already ran on devices with the previous build.
+        if (!data.recvHotMigrated) {
+          recvLog.forEach(function (e) {
+            if (e.kind !== "hot") return;
+            var item = null;
+            try { item = findRecvItem(e.pid); } catch (err) { item = null; }
+            if (item && typeof item.perBox === "number" && item.perBox > 0) {
+              e.delta = Math.round(e.delta * item.perBox * 100) / 100;
+            }
+          });
+          recvHotMigrated = true;
+          saveState();
+        } else {
+          recvHotMigrated = true;
         }
       }
 
@@ -1862,8 +1884,9 @@
       // What a row's entered quantities are worth, plus a plain-language
       // description for the session log. "each" items (Thursday count
       // rows — candy, Pepsi products, paper — plus month-end "each"
-      // rows) are now in individual units; "hot" and "supply" stay in
-      // cases, "bib" in BIBs, "units" in units, and "cases" in cases.
+      // rows) are now in individual units; "hot" items are now in
+      // portions; "supply" stays in cases, "bib" in BIBs, "units" in
+      // units, and "cases" in cases.
       function recvCalc(r) {
         var vals = [r.boxes, r.sleeves, r.stand, r.misc, r.portions, r.each, r.bibs, r.casesQty];
         var any = vals.some(function (v) { return v !== null && v > 0; });
@@ -1890,7 +1913,7 @@
         if (r.kind === "hot") {
           if (r.portions) parts.push(fmt(r.portions) + " portions");
           total = (r.boxes || 0) * r.perBox + (r.sleeves || 0) * r.perSleeve + (r.portions || 0);
-          delta = total / r.perBox;
+          delta = total;
         } else if (r.kind === "supply") {
           if (r.each) parts.push(fmt(r.each) + " each");
           total = (r.boxes || 0) * r.perBox + (r.noSleeve ? 0 : (r.sleeves || 0) * r.perSleeve) + (r.each || 0);
@@ -1958,7 +1981,7 @@
           gridCls = "f4";
         }
         var rTotal = recvTotalFor(r);
-        var rUnit = r.kind === "bib" ? "BIBs received" : ((r.kind === "units" || r.kind === "each") ? "Units received" : "Cases received");
+        var rUnit = r.kind === "bib" ? "BIBs received" : (r.kind === "hot" ? "Portions received" : ((r.kind === "units" || r.kind === "each") ? "Units received" : "Cases received"));
         var rBadge = rTotal > 0
           ? '<div class="need-badge"><span class="n">' + fmt(rTotal) + '</span><span class="l">' + rUnit + '</span></div>'
           : '<div class="need-badge unset"><span class="n">None</span><span class="l">Received yet</span></div>';
@@ -2064,7 +2087,7 @@
         renderRecvLog();
         updateRecvSummary();
         syncReceiveBar();
-        toast(r.name + " recorded — received total is now " + fmt(recvTotalFor(r)) + (r.kind === "bib" ? (recvTotalFor(r) === 1 ? " BIB" : " BIBs") : ((r.kind === "units" || r.kind === "each") ? (recvTotalFor(r) === 1 ? " unit" : " units") : (recvTotalFor(r) === 1 ? " case" : " cases"))));
+        toast(r.name + " recorded — received total is now " + fmt(recvTotalFor(r)) + (r.kind === "bib" ? (recvTotalFor(r) === 1 ? " BIB" : " BIBs") : (r.kind === "hot" ? (recvTotalFor(r) === 1 ? " portion" : " portions") : ((r.kind === "units" || r.kind === "each") ? (recvTotalFor(r) === 1 ? " unit" : " units") : (recvTotalFor(r) === 1 ? " case" : " cases")))));
       }
 
       function renderRecvLog() {
@@ -2074,11 +2097,12 @@
         box.innerHTML = recvLog.map(function (e) {
           var detail = e.desc;
           if (e.kind === "units" || e.kind === "each") detail += " = +" + fmt(e.delta) + (e.delta === 1 ? " unit" : " units");
+          else if (e.kind === "hot") detail += " = +" + fmt(e.delta) + (e.delta === 1 ? " portion" : " portions");
           else if (e.kind !== "bib" && e.kind !== "cases") detail += " = +" + fmt(e.delta) + " " + caseWord(e.delta);
           detail += " · " + e.time.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
           return '<div class="log-row"><div><div class="pname">' + esc(e.name) + '</div>' +
             '<div class="ptargets">' + esc(detail) + '</div></div>' +
-            '<div class="need-badge"><span class="n">+' + fmt(e.delta) + '</span><span class="l">' + (e.kind === "bib" ? "BIBs in" : ((e.kind === "units" || e.kind === "each") ? "Units in" : "Cases in")) + '</span></div></div>';
+            '<div class="need-badge"><span class="n">+' + fmt(e.delta) + '</span><span class="l">' + (e.kind === "bib" ? "BIBs in" : (e.kind === "hot" ? "Portions in" : ((e.kind === "units" || e.kind === "each") ? "Units in" : "Cases in"))) + '</span></div></div>';
         }).join("");
       }
 
@@ -2251,7 +2275,7 @@
           html += '<div class="order-cat">' + esc(cat.name) + '</div><div class="check-list">';
           rows.forEach(function (r) {
             var t = recvTotalFor(r);
-            var unit = r.kind === "bib" ? (t === 1 ? "BIB received" : "BIBs received") : ((r.kind === "units" || r.kind === "each") ? (t === 1 ? "unit received" : "units received") : (t === 1 ? "case received" : "cases received"));
+            var unit = r.kind === "bib" ? (t === 1 ? "BIB received" : "BIBs received") : (r.kind === "hot" ? (t === 1 ? "portion received" : "portions received") : ((r.kind === "units" || r.kind === "each") ? (t === 1 ? "unit received" : "units received") : (t === 1 ? "case received" : "cases received")));
             html += checkRowHtml(r.pid, r.name, fmt(t), unit, receivedChecked);
           });
           html += "</div>";
@@ -2268,7 +2292,7 @@
           lines.push(cat.name.toUpperCase());
           rows.forEach(function (r) {
             var t = recvTotalFor(r);
-            lines.push("  " + r.name + " — " + fmt(t) + (r.kind === "bib" ? (t === 1 ? " BIB" : " BIBs") : ((r.kind === "units" || r.kind === "each") ? (t === 1 ? " unit" : " units") : (t === 1 ? " case" : " cases"))));
+            lines.push("  " + r.name + " — " + fmt(t) + (r.kind === "bib" ? (t === 1 ? " BIB" : " BIBs") : (r.kind === "hot" ? (t === 1 ? " portion" : " portions") : ((r.kind === "units" || r.kind === "each") ? (t === 1 ? " unit" : " units") : (t === 1 ? " case" : " cases")))));
           });
           lines.push("");
         });
