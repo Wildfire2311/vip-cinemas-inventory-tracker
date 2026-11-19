@@ -1896,6 +1896,16 @@
           boxes: null, sleeves: null, stand: null, misc: null, portions: null, each: null, bibs: null, casesQty: null
         });
       });
+      // Fruit Punch BIB is count-only (month-end count, 3 gal per BIB) —
+      // it has no order-guide product, so it gets this standalone
+      // receive-only row. kind "bib" routes it through the gallons
+      // conversion like the other BIBs: enter whole BIBs, record gallons.
+      recvItems.push({
+        pid: "recv-fruit-punch-bib", name: "Fruit Punch BIB", cat: "Drinks", supplier: "Pepsi",
+        kind: "bib", gal: 3, perBox: null, perSleeve: null, noSleeve: false,
+        divisor: null, portionsPer: null, convNote: null,
+        boxes: null, sleeves: null, stand: null, misc: null, portions: null, each: null, bibs: null, casesQty: null
+      });
       var recvLog = [];
 
       function findRecvItem(pid) {
