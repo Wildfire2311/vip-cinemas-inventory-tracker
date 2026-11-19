@@ -819,6 +819,7 @@
       var STORE_KEY = "vipCinemasInventory.v1";
       var recvUnitsMigrated = false;
       var recvHotMigrated = false;
+      var recvBibMigrated = false;
       function saveState() {
         sanitizeMode();
         try {
@@ -833,6 +834,7 @@
             recvLog: recvLog,
             recvUnitsMigrated: recvUnitsMigrated,
             recvHotMigrated: recvHotMigrated,
+            recvBibMigrated: recvBibMigrated,
             countsChecked: countsChecked,
             receivedChecked: receivedChecked,
             orderChecked: orderChecked
@@ -871,7 +873,7 @@
           var raw = window.localStorage ? localStorage.getItem(STORE_KEY) : null;
           if (raw) data = JSON.parse(raw);
         } catch (err) { data = null; }
-        if (!data) { recvUnitsMigrated = true; recvHotMigrated = true; sanitizeMode(); syncModeButtons(); return; }
+        if (!data) { recvUnitsMigrated = true; recvHotMigrated = true; recvBibMigrated = true; sanitizeMode(); syncModeButtons(); return; }
         if (validMode(data.mode)) state.mode = data.mode;
         // Whatever was saved, the mode in use from here on is a valid one
         // and the stocking buttons show it — guide and order list agree.
@@ -971,6 +973,26 @@
           saveState();
         } else {
           recvHotMigrated = true;
+        }
+        // One-time migration: log entries recorded before the "bib"
+        // fix have BIB-denominated deltas (e.g. 1 Pepsi BIB was stored
+        // as 1, meaning 1 BIB). Convert each "bib" entry to gallons
+        // by multiplying by its product's gal. Runs exactly once —
+        // separate flag from recvUnitsMigrated and recvHotMigrated,
+        // since those flags already ran on devices with previous builds.
+        if (!data.recvBibMigrated) {
+          recvLog.forEach(function (e) {
+            if (e.kind !== "bib") return;
+            var item = null;
+            try { item = findRecvItem(e.pid); } catch (err) { item = null; }
+            if (item && typeof item.gal === "number" && item.gal > 0) {
+              e.delta = Math.round(e.delta * item.gal * 100) / 100;
+            }
+          });
+          recvBibMigrated = true;
+          saveState();
+        } else {
+          recvBibMigrated = true;
         }
       }
 
@@ -1885,15 +1907,15 @@
       // description for the session log. "each" items (Thursday count
       // rows — candy, Pepsi products, paper — plus month-end "each"
       // rows) are now in individual units; "hot" items are now in
-      // portions; "supply" stays in cases, "bib" in BIBs, "units" in
-      // units, and "cases" in cases.
+      // portions; "bib" items are now in gallons; "supply" stays in
+      // cases, "units" in units, and "cases" in cases.
       function recvCalc(r) {
         var vals = [r.boxes, r.sleeves, r.stand, r.misc, r.portions, r.each, r.bibs, r.casesQty];
         var any = vals.some(function (v) { return v !== null && v > 0; });
         if (!any) return { entered: false, delta: 0, desc: "" };
         if (r.kind === "bib") {
           var b = r.bibs || 0;
-          return { entered: true, delta: b, desc: fmt(b) + (b === 1 ? " BIB" : " BIBs") + " (" + fmt(b * r.gal) + " gal)" };
+          return { entered: true, delta: Math.round(b * r.gal * 100) / 100, desc: fmt(b) + (b === 1 ? " BIB" : " BIBs") };
         }
         if (r.kind === "cases") {
           var cq = r.casesQty || 0;
@@ -1937,7 +1959,7 @@
       }
 
       // Total received for one product in this view this session, in the
-      // row's own units (cases, or BIBs for syrups).
+      // row's own units (cases, or gallons for syrups).
       function recvTotalFor(r) {
         var t = 0;
         recvLog.forEach(function (e) { if (e.pid === r.pid) t += e.delta; });
@@ -1981,7 +2003,7 @@
           gridCls = "f4";
         }
         var rTotal = recvTotalFor(r);
-        var rUnit = r.kind === "bib" ? "BIBs received" : (r.kind === "hot" ? "Portions received" : ((r.kind === "units" || r.kind === "each") ? "Units received" : "Cases received"));
+        var rUnit = r.kind === "bib" ? "Gallons received" : (r.kind === "hot" ? "Portions received" : ((r.kind === "units" || r.kind === "each") ? "Units received" : "Cases received"));
         var rBadge = rTotal > 0
           ? '<div class="need-badge"><span class="n">' + fmt(rTotal) + '</span><span class="l">' + rUnit + '</span></div>'
           : '<div class="need-badge unset"><span class="n">None</span><span class="l">Received yet</span></div>';
@@ -2087,7 +2109,7 @@
         renderRecvLog();
         updateRecvSummary();
         syncReceiveBar();
-        toast(r.name + " recorded — received total is now " + fmt(recvTotalFor(r)) + (r.kind === "bib" ? (recvTotalFor(r) === 1 ? " BIB" : " BIBs") : (r.kind === "hot" ? (recvTotalFor(r) === 1 ? " portion" : " portions") : ((r.kind === "units" || r.kind === "each") ? (recvTotalFor(r) === 1 ? " unit" : " units") : (recvTotalFor(r) === 1 ? " case" : " cases")))));
+        toast(r.name + " recorded — received total is now " + fmt(recvTotalFor(r)) + (r.kind === "bib" ? (recvTotalFor(r) === 1 ? " gallon" : " gallons") : (r.kind === "hot" ? (recvTotalFor(r) === 1 ? " portion" : " portions") : ((r.kind === "units" || r.kind === "each") ? (recvTotalFor(r) === 1 ? " unit" : " units") : (recvTotalFor(r) === 1 ? " case" : " cases")))));
       }
 
       function renderRecvLog() {
@@ -2098,11 +2120,12 @@
           var detail = e.desc;
           if (e.kind === "units" || e.kind === "each") detail += " = +" + fmt(e.delta) + (e.delta === 1 ? " unit" : " units");
           else if (e.kind === "hot") detail += " = +" + fmt(e.delta) + (e.delta === 1 ? " portion" : " portions");
+          else if (e.kind === "bib") detail += " = +" + fmt(e.delta) + (e.delta === 1 ? " gallon" : " gallons");
           else if (e.kind !== "bib" && e.kind !== "cases") detail += " = +" + fmt(e.delta) + " " + caseWord(e.delta);
           detail += " · " + e.time.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
           return '<div class="log-row"><div><div class="pname">' + esc(e.name) + '</div>' +
             '<div class="ptargets">' + esc(detail) + '</div></div>' +
-            '<div class="need-badge"><span class="n">+' + fmt(e.delta) + '</span><span class="l">' + (e.kind === "bib" ? "BIBs in" : (e.kind === "hot" ? "Portions in" : ((e.kind === "units" || e.kind === "each") ? "Units in" : "Cases in"))) + '</span></div></div>';
+            '<div class="need-badge"><span class="n">+' + fmt(e.delta) + '</span><span class="l">' + (e.kind === "bib" ? "Gallons in" : (e.kind === "hot" ? "Portions in" : ((e.kind === "units" || e.kind === "each") ? "Units in" : "Cases in"))) + '</span></div></div>';
         }).join("");
       }
 
@@ -2275,7 +2298,7 @@
           html += '<div class="order-cat">' + esc(cat.name) + '</div><div class="check-list">';
           rows.forEach(function (r) {
             var t = recvTotalFor(r);
-            var unit = r.kind === "bib" ? (t === 1 ? "BIB received" : "BIBs received") : (r.kind === "hot" ? (t === 1 ? "portion received" : "portions received") : ((r.kind === "units" || r.kind === "each") ? (t === 1 ? "unit received" : "units received") : (t === 1 ? "case received" : "cases received")));
+            var unit = r.kind === "bib" ? (t === 1 ? "gallon received" : "gallons received") : (r.kind === "hot" ? (t === 1 ? "portion received" : "portions received") : ((r.kind === "units" || r.kind === "each") ? (t === 1 ? "unit received" : "units received") : (t === 1 ? "case received" : "cases received")));
             html += checkRowHtml(r.pid, r.name, fmt(t), unit, receivedChecked);
           });
           html += "</div>";
@@ -2292,7 +2315,7 @@
           lines.push(cat.name.toUpperCase());
           rows.forEach(function (r) {
             var t = recvTotalFor(r);
-            lines.push("  " + r.name + " — " + fmt(t) + (r.kind === "bib" ? (t === 1 ? " BIB" : " BIBs") : (r.kind === "hot" ? (t === 1 ? " portion" : " portions") : ((r.kind === "units" || r.kind === "each") ? (t === 1 ? " unit" : " units") : (t === 1 ? " case" : " cases")))));
+            lines.push("  " + r.name + " — " + fmt(t) + (r.kind === "bib" ? (t === 1 ? " gallon" : " gallons") : (r.kind === "hot" ? (t === 1 ? " portion" : " portions") : ((r.kind === "units" || r.kind === "each") ? (t === 1 ? " unit" : " units") : (t === 1 ? " case" : " cases")))));
           });
           lines.push("");
         });
